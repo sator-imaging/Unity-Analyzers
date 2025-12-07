@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="./src/UnityAnalyzers.csproj" />
+  <Project Path="./test/UnityAnalyzers.Test.csproj" />
+</Solution>

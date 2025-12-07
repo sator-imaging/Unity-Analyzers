@@ -1,0 +1,74 @@
+<Project>
+
+  <PropertyGroup Condition=" '$(Configuration)'=='Release' ">
+    <DebugType>none</DebugType>
+  </PropertyGroup>
+
+  <PropertyGroup Label="NuGetPublishSettings">
+    <NuGetPublishVersion>0.1.0</NuGetPublishVersion>
+    <NuGetPublishVersionSuffix></NuGetPublishVersionSuffix>
+    <!-- relative path from .csproj files, without trailing slash -->
+    <NuGetPublishProjectRootRelPath>..</NuGetPublishProjectRootRelPath>
+    <NuGetPublishIconFile>icon-128px.png</NuGetPublishIconFile>
+    <NuGetPublishReadmeFile>README.md</NuGetPublishReadmeFile>
+
+    <NuGetPublishID>SatorImaging.$(MSBuildProjectName)</NuGetPublishID>
+    <NuGetPublishTitle>$(NuGetPublishID)</NuGetPublishTitle>
+    <NuGetPublishProduct>$(NuGetPublishTitle)</NuGetPublishProduct>
+    <NuGetPublishOwner>Sator Imaging</NuGetPublishOwner>
+    <NuGetPublishCompany>$(NuGetPublishOwner)</NuGetPublishCompany>
+    <NuGetPublishCopyright>(c) 2025 $(NuGetPublishOwner)</NuGetPublishCopyright>
+    <NuGetPublishLicenseSPDX>Apache-2.0</NuGetPublishLicenseSPDX>
+    <NuGetPublishDescription>C# analyzers for the Unity project.</NuGetPublishDescription>
+    <NuGetPublishTags>Roslyn, analyzer, Unity</NuGetPublishTags>
+    <NuGetPublishWebsite>https://x.com/sator_imaging</NuGetPublishWebsite>
+    <NuGetPublishRepository>https://github.com/sator-imaging/Unity-Analyzers</NuGetPublishRepository>
+    <NuGetPublishReleaseNote>https://github.com/sator-imaging/Unity-Analyzers</NuGetPublishReleaseNote>
+    <NuGetPublishIconUrl>https://github.com/sator-imaging/Unity-Analyzers/raw/main/$(NuGetPublishIconFile)</NuGetPublishIconUrl>
+  </PropertyGroup>
+
+  <!--                              -->
+  <!-- vvv TEMPLATE for .csproj vvv -->
+  <!--                              -->
+
+  <!--                            -->
+  <!-- nuget.org publish settings -->
+  <!--                            -->
+  <ItemGroup Condition=" '$(Configuration)'=='Release' ">
+    <None Include="$(NuGetPublishProjectRootRelPath)/$(NuGetPublishIconFile)">
+      <Pack>True</Pack><PackagePath>/</PackagePath>
+    </None>
+    <None Include="$(NuGetPublishProjectRootRelPath)/$(NuGetPublishReadmeFile)">
+      <Pack>True</Pack><PackagePath>/</PackagePath>
+    </None>
+  </ItemGroup>
+  <PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+
+    <PackageIcon>$(NuGetPublishIconFile)</PackageIcon>
+    <PackageReadmeFile>$(NuGetPublishReadmeFile)</PackageReadmeFile>
+    <AssemblyVersion>$(NuGetPublishVersion)</AssemblyVersion>
+    <FileVersion>$(NuGetPublishVersion)</FileVersion>
+    <PackageVersion>$(NuGetPublishVersion)$(NuGetPublishVersionSuffix)</PackageVersion>
+    <Version>$(NuGetPublishVersion)$(NuGetPublishVersionSuffix)</Version>
+
+    <AssemblyName>$(NuGetPublishID)</AssemblyName>
+    <PackageId>$(NuGetPublishID)</PackageId>
+    <Title>$(NuGetPublishTitle)</Title>
+    <Product>$(NuGetPublishProduct)</Product>
+    <Authors>$(NuGetPublishOwner)</Authors>
+    <Company>$(NuGetPublishCompany)</Company>
+    <Copyright>$(NuGetPublishCopyright)</Copyright>
+    <PackageLicenseExpression>$(NuGetPublishLicenseSPDX)</PackageLicenseExpression>
+    <Description>$(NuGetPublishDescription)</Description>
+    <PackageTags>$(NuGetPublishTags)</PackageTags>
+    <PackageProjectUrl>$(NuGetPublishWebsite)</PackageProjectUrl>
+    <RepositoryUrl>$(NuGetPublishRepository)</RepositoryUrl>
+    <PackageReleaseNotes>$(NuGetPublishReleaseNote)</PackageReleaseNotes>
+    <!--
+    <PackageIconUrl>$(NuGetPublishIconUrl)</PackageIconUrl>
+    -->
+  </PropertyGroup>
+
+</Project>
