@@ -1,0 +1,23 @@
+on:
+  workflow_call:
+
+jobs:
+
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        configuration: [Debug, Release]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 10.x.x
+
+    - name: Test
+      run: |
+        dotnet build ./src -c ${{ matrix.configuration }}
