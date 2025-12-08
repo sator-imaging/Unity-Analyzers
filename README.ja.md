@@ -1,4 +1,6 @@
 [![nuget](https://img.shields.io/nuget/vpre/SatorImaging.UnityAnalyzers)](https://www.nuget.org/packages/SatorImaging.UnityAnalyzers)
+&nbsp;
+[![DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/sator-imaging/Unity-Analyzers)
 
 [🇺🇸 English](./README.md)
 &nbsp; ❘ &nbsp;

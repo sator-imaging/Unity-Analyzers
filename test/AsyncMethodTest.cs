@@ -19,6 +19,7 @@ using UnityEngine;
 #pragma warning disable IDE0200  // Remove unnecessary lambda expression
 #pragma warning disable IDE0078  // Use pattern matching
 #pragma warning disable IDE0130  // Namespace does not match folder structure
+#pragma warning disable CS0164  // This label has not been referenced
 #pragma warning disable CA1822  // Mark members as static
 #pragma warning disable CA1050  // Declare types in namespaces
 #pragma warning disable CA1816  // Call GC.SuppressFinalize correctly
@@ -434,6 +435,22 @@ namespace SampleConsumer
             {
                 return await foo.FooAsync();  // Error
             }
+        }
+
+        public async Task LabelIsPriority()
+        {
+        LABEL:
+            MonoBehaviour? foo = new();
+            m_boolValue = await foo.FooAsync();  // Error: first await but after the first label
+            m_boolValue = await foo.FooAsync();  // Error
+        }
+
+        public async Task LabelIsPriority2()
+        {
+            MonoBehaviour? foo = new();
+            m_boolValue = await foo.FooAsync();  // OK: first await before first label
+        LABEL:
+            m_boolValue = await foo.FooAsync();  // Error
         }
 
         public async Task<bool> FirstAwaitDetectionReturnDeep()
