@@ -21,3 +21,5 @@ jobs:
     - name: Test
       run: |
         dotnet build ./src -c ${{ matrix.configuration }}
+
+        dotnet test ./test -c ${{ matrix.configuration }} --no-build
