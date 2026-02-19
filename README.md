@@ -14,6 +14,8 @@
 
 Roslyn analyzers to ensure safe and correct code when developing with Unity.
 
+- [Async Method Analysis](#async-method-analysis)
+- [Static State Analysis](#static-state-analysis)
 
 # Async Method Analysis
 
