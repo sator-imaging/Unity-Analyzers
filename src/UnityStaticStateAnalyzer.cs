@@ -107,7 +107,8 @@ namespace UnityAnalyzers
 
             foreach (var member in members)
             {
-                if (IsTargetStaticMember(member) && member is not IMethodSymbol && !walker.AssignedSymbols.Contains(member))
+                if (member is IMethodSymbol) continue;
+                if (IsTargetStaticMember(member) && !walker.AssignedSymbols.Contains(member))
                 {
                     context.ReportDiagnostic(Diagnostic.Create(
                         SR.MissingStateResetInRuntimeInitializeOnLoadMethod,
