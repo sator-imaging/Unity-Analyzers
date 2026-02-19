@@ -3,6 +3,8 @@
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 
@@ -12,7 +14,7 @@ namespace UnityAnalyzers
     public sealed class UnityStaticStateAnalyzer : DiagnosticAnalyzer
     {
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-            ImmutableArray.Create(SR.StaticStateSurvivesAcrossPlayMode);
+            ImmutableArray.Create(SR.StaticStateSurvivesAcrossPlayMode, SR.MissingStateResetInRuntimeInitializeOnLoadMethod);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -20,6 +22,7 @@ namespace UnityAnalyzers
             context.EnableConcurrentExecution();
 
             context.RegisterSymbolAction(AnalyzeNamedType, SymbolKind.NamedType);
+            context.RegisterOperationAction(AnalyzeMethodBody, OperationKind.MethodBody);
         }
 
         private static void AnalyzeNamedType(SymbolAnalysisContext context)
@@ -85,6 +88,96 @@ namespace UnityAnalyzers
             if (type.IsReferenceType) return false;
 
             return type.IsReadOnly || type.TypeKind == TypeKind.Enum;
+        }
+
+        private static void AnalyzeMethodBody(OperationAnalysisContext context)
+        {
+            if (context.Operation is not IMethodBodyOperation methodBody) return;
+            if (context.ContainingSymbol is not IMethodSymbol method) return;
+
+            if (!IsResetMethod(method)) return;
+
+            var type = method.ContainingType;
+            var members = type.GetMembers();
+
+            var walker = new AssignmentWalker();
+            walker.Visit(methodBody);
+
+            foreach (var member in members)
+            {
+                if (IsRequiredResetMember(member) && !walker.AssignedSymbols.Contains(member))
+                {
+                    string memberType;
+                    if (member is IFieldSymbol) memberType = "field";
+                    else if (member is IPropertySymbol) memberType = "property";
+                    else if (member is IEventSymbol) memberType = "event";
+                    else continue;
+
+                    context.ReportDiagnostic(Diagnostic.Create(
+                        SR.MissingStateResetInRuntimeInitializeOnLoadMethod,
+                        method.Locations[0],
+                        memberType,
+                        member.Name));
+                }
+            }
+        }
+
+        private static bool IsRequiredResetMember(ISymbol member)
+        {
+            if (!member.IsStatic || member.IsImplicitlyDeclared) return false;
+
+            if (member is IFieldSymbol field)
+            {
+                return !field.HasConstantValue && !field.IsReadOnly;
+            }
+
+            if (member is IPropertySymbol property)
+            {
+                return !property.IsReadOnly;
+            }
+
+            if (member is IEventSymbol)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        private class AssignmentWalker : OperationWalker
+        {
+            public HashSet<ISymbol> AssignedSymbols { get; } = new HashSet<ISymbol>(SymbolEqualityComparer.Default);
+
+            public override void VisitSimpleAssignment(ISimpleAssignmentOperation operation)
+            {
+                RegisterTarget(operation.Target);
+                base.VisitSimpleAssignment(operation);
+            }
+
+            public override void VisitCompoundAssignment(ICompoundAssignmentOperation operation)
+            {
+                RegisterTarget(operation.Target);
+                base.VisitCompoundAssignment(operation);
+            }
+
+            public override void VisitIncrementOrDecrement(IIncrementOrDecrementOperation operation)
+            {
+                RegisterTarget(operation.Target);
+                base.VisitIncrementOrDecrement(operation);
+            }
+
+            private void RegisterTarget(IOperation target)
+            {
+                if (target is IMemberReferenceOperation memberReference)
+                {
+                    var member = memberReference.Member;
+                    AssignedSymbols.Add(member);
+                    if (member is IFieldSymbol field && field.AssociatedSymbol != null)
+                    {
+                        AssignedSymbols.Add(field.AssociatedSymbol);
+                    }
+                }
+            }
         }
     }
 }

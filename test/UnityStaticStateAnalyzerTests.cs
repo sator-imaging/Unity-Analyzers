@@ -194,5 +194,115 @@ public class TestClass
             test.ExpectedDiagnostics.Add(expected1);
             await test.RunAsync();
         }
+
+        [Fact]
+        public async Task TestMissingResetWarning()
+        {
+            var testCode = @"
+using UnityEngine;
+public class TestClass
+{
+    public static int myField;
+    public static int MyProperty { get; set; }
+
+    [RuntimeInitializeOnLoadMethod]
+    static void {|#0:Reset|}()
+    {
+        myField = 0;
+    }
+}
+";
+            var expected = new DiagnosticResult("SIUA012", DiagnosticSeverity.Warning)
+                .WithLocation(0)
+                .WithArguments("property", "MyProperty");
+
+            var test = new CSharpAnalyzerTest<UnityStaticStateAnalyzer, DefaultVerifier>
+            {
+                TestState = { Sources = { testCode, UnityEngineSource } },
+            };
+
+            test.ExpectedDiagnostics.Add(expected);
+            await test.RunAsync();
+        }
+
+        [Fact]
+        public async Task TestAllResets()
+        {
+            var testCode = @"
+using UnityEngine;
+using System;
+public class TestClass
+{
+    public static int myField;
+    public static int MyProperty { get; set; }
+    public static event Action OnSomething;
+
+    [RuntimeInitializeOnLoadMethod]
+    static void Reset()
+    {
+        myField = 0;
+        MyProperty = 0;
+        OnSomething = null;
+    }
+}
+";
+            var test = new CSharpAnalyzerTest<UnityStaticStateAnalyzer, DefaultVerifier>
+            {
+                TestState = { Sources = { testCode, UnityEngineSource } },
+            };
+
+            await test.RunAsync();
+        }
+
+        [Fact]
+        public async Task TestCompoundAndIncrementResets()
+        {
+            var testCode = @"
+using UnityEngine;
+public class TestClass
+{
+    public static int myField1;
+    public static int myField2;
+
+    [RuntimeInitializeOnLoadMethod]
+    static void Reset()
+    {
+        myField1 += 1;
+        myField2++;
+    }
+}
+";
+            var test = new CSharpAnalyzerTest<UnityStaticStateAnalyzer, DefaultVerifier>
+            {
+                TestState = { Sources = { testCode, UnityEngineSource } },
+            };
+
+            await test.RunAsync();
+        }
+
+        [Fact]
+        public async Task TestNoWarningOnReadOnlyMembers()
+        {
+            var testCode = @"
+using UnityEngine;
+using System.Collections.Generic;
+public class TestClass
+{
+    public static readonly List<int> myField = new List<int>();
+    public static List<int> MyProperty { get; } = new List<int>();
+
+    [RuntimeInitializeOnLoadMethod]
+    static void Reset()
+    {
+    }
+}
+";
+            var test = new CSharpAnalyzerTest<UnityStaticStateAnalyzer, DefaultVerifier>
+            {
+                TestState = { Sources = { testCode, UnityEngineSource } },
+            };
+
+            await test.RunAsync();
+        }
     }
 }
