@@ -194,5 +194,133 @@ public class TestClass
             test.ExpectedDiagnostics.Add(expected1);
             await test.RunAsync();
         }
+
+        [Fact]
+        public async Task TestMissingResetWarning()
+        {
+            var testCode = @"
+using UnityEngine;
+public class TestClass
+{
+    public static int {|#0:myField|};
+    public static int myResetField;
+
+    [RuntimeInitializeOnLoadMethod]
+    static void Reset() { myResetField = 1; }
+}
+";
+            var expected = new DiagnosticResult("SIUA012", DiagnosticSeverity.Warning)
+                .WithLocation(0)
+                .WithArguments("field", "myField");
+
+            var test = new CSharpAnalyzerTest<UnityStaticStateAnalyzer, DefaultVerifier>
+            {
+                TestState = { Sources = { testCode, UnityEngineSource } },
+            };
+
+            test.ExpectedDiagnostics.Add(expected);
+            await test.RunAsync();
+        }
+
+        [Fact]
+        public async Task TestMultipleResetMethods()
+        {
+            var testCode = @"
+using UnityEngine;
+public class TestClass
+{
+    public static int myField1;
+    public static int myField2;
+
+    [RuntimeInitializeOnLoadMethod]
+    static void Reset1() { myField1 = 1; }
+
+    [RuntimeInitializeOnLoadMethod]
+    static void Reset2() { myField2 = 2; }
+}
+";
+            var test = new CSharpAnalyzerTest<UnityStaticStateAnalyzer, DefaultVerifier>
+            {
+                TestState = { Sources = { testCode, UnityEngineSource } },
+            };
+
+            await test.RunAsync();
+        }
+
+        [Fact]
+        public async Task TestPropertyAndEventReset()
+        {
+            var testCode = @"
+using UnityEngine;
+using System;
+public class TestClass
+{
+    public static int {|#0:MyProperty|} { get; set; }
+    public static event Action {|#1:OnSomething|};
+
+    [RuntimeInitializeOnLoadMethod]
+    static void Reset() { }
+}
+";
+            var expected0 = new DiagnosticResult("SIUA012", DiagnosticSeverity.Warning)
+                .WithLocation(0)
+                .WithArguments("property", "MyProperty");
+            var expected1 = new DiagnosticResult("SIUA012", DiagnosticSeverity.Warning)
+                .WithLocation(1)
+                .WithArguments("event", "OnSomething");
+
+            var test = new CSharpAnalyzerTest<UnityStaticStateAnalyzer, DefaultVerifier>
+            {
+                TestState = { Sources = { testCode, UnityEngineSource } },
+            };
+
+            test.ExpectedDiagnostics.Add(expected0);
+            test.ExpectedDiagnostics.Add(expected1);
+            await test.RunAsync();
+        }
+
+        [Fact]
+        public async Task TestPropertyAndEventResetFixed()
+        {
+            var testCode = @"
+using UnityEngine;
+using System;
+public class TestClass
+{
+    public static int MyProperty { get; set; }
+    public static event Action OnSomething;
+
+    [RuntimeInitializeOnLoadMethod]
+    static void Reset()
+    {
+        MyProperty = 0;
+        OnSomething = null;
+    }
+}
+";
+            var test = new CSharpAnalyzerTest<UnityStaticStateAnalyzer, DefaultVerifier>
+            {
+                TestState = { Sources = { testCode, UnityEngineSource } },
+            };
+
+            await test.RunAsync();
+        }
+
+        [Fact]
+        public async Task TestMethodNoWarning()
+        {
+            var testCode = @"
+public class TestClass
+{
+    public static void MyMethod() {}
+}
+";
+            var test = new CSharpAnalyzerTest<UnityStaticStateAnalyzer, DefaultVerifier>
+            {
+                TestState = { Sources = { testCode, UnityEngineSource } },
+            };
+
+            await test.RunAsync();
+        }
     }
 }
