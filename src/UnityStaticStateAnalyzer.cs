@@ -86,13 +86,7 @@ namespace UnityAnalyzers
             if (type.SpecialType == SpecialType.System_String) return true;
             if (type.IsReferenceType) return false;
 
-            if (type is INamedTypeSymbol namedType)
-            {
-                if (namedType.TypeKind == TypeKind.Enum) return true;
-                if (namedType.IsReadOnly) return true;
-            }
-
-            return false;
+            return type.TypeKind == TypeKind.Enum || type.IsReadOnly;
         }
     }
 }
