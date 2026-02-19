@@ -83,6 +83,7 @@ namespace UnityAnalyzers
         private static bool IsImmutable(ITypeSymbol type)
         {
             if (type.SpecialType == SpecialType.System_String) return true;
+            if (type.IsReferenceType) return false;
 
             if (type is INamedTypeSymbol namedType)
             {
