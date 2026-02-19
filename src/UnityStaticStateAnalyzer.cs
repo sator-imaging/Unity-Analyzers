@@ -61,6 +61,7 @@ namespace UnityAnalyzers
 
             if (member is IFieldSymbol field)
             {
+                if (field.HasConstantValue) return false;
                 if (field.IsReadOnly && IsImmutable(field.Type))
                 {
                     return false;

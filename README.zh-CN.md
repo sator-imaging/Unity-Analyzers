@@ -208,7 +208,7 @@ await DoFurtherAsync(); // OK
 静态字段和属性应在项目加载或进入播放模式时重置。这通常使用带有 `[RuntimeInitializeOnLoadMethod]` 属性的方法来完成。
 
 **匹配原因:**
-- 任何静态字段（不包括 `string`、原始类型或 `readonly struct` 等不可变类型的 `readonly` 字段）。
+- 任何静态字段（不包括 `const` 或 `string`、原始类型或 `readonly struct` 等不可变类型的 `readonly` 字段）。
 - 任何静态属性（不包括不可变类型的仅有 getter 的属性）。
 - 类中不包含带有 `[RuntimeInitializeOnLoadMethod]` 或 `[RuntimeInitializeOnLoadMethodAttribute]` 属性的静态方法。
 

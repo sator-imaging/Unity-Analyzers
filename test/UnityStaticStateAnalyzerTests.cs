@@ -82,24 +82,20 @@ public class TestClass
         }
 
         [Fact]
-        public async Task TestWarningOnConst()
+        public async Task TestNoWarningOnConst()
         {
             var testCode = @"
 public class TestClass
 {
-    public const int {|#0:myConst|} = 0;
+    public const int MyConstInt = 0;
+    public const string MyConstString = ""foo"";
 }
 ";
-            var expected = new DiagnosticResult("SIUA011", DiagnosticSeverity.Warning)
-                .WithLocation(0)
-                .WithArguments("field", "myConst");
-
             var test = new CSharpAnalyzerTest<UnityStaticStateAnalyzer, DefaultVerifier>
             {
                 TestState = { Sources = { testCode, UnityEngineSource } },
             };
 
-            test.ExpectedDiagnostics.Add(expected);
             await test.RunAsync();
         }
 

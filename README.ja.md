@@ -208,7 +208,7 @@ Unity ではドメインリロードが無効になっている場合、静的�
 静的フィールドやプロパティは、プロジェクトのロード時やプレイモードへの進入時にリセットされるべきです。これは通常、`[RuntimeInitializeOnLoadMethod]` 属性が付いたメソッドを使用して行われます。
 
 **マッチ理由:**
-- 静的フィールド（`string`、プリミティブ型、`readonly struct` などの不変型の `readonly` フィールドを除く）。
+- 静的フィールド（`const` および `string`、プリミティブ型、`readonly struct` などの不変型の `readonly` フィールドを除く）。
 - 静的プロパティ（不変型のゲッターのみのプロパティを除く）。
 - クラス内に `[RuntimeInitializeOnLoadMethod]` または `[RuntimeInitializeOnLoadMethodAttribute]` が付いた静的メソッドが存在しない。
 
