@@ -200,10 +200,13 @@ public class TestClass
         {
             var testCode = @"
 using UnityEngine;
+using System;
 public class TestClass
 {
     public static int myField;
-    public static int MyProperty { get; set; }
+    public static string myString;
+    public static event Action myEvent;
+    public static event Func<int> myFunc;
 
     [RuntimeInitializeOnLoadMethod]
     static void {|#0:Reset|}()
@@ -212,16 +215,18 @@ public class TestClass
     }
 }
 ";
-            var expected = new DiagnosticResult("SIUA012", DiagnosticSeverity.Warning)
-                .WithLocation(0)
-                .WithArguments("property", "MyProperty");
+            var expected1 = new DiagnosticResult("SIUA012", DiagnosticSeverity.Error).WithLocation(0).WithArguments("field", "myString");
+            var expected2 = new DiagnosticResult("SIUA012", DiagnosticSeverity.Error).WithLocation(0).WithArguments("event", "myEvent");
+            var expected3 = new DiagnosticResult("SIUA012", DiagnosticSeverity.Error).WithLocation(0).WithArguments("event", "myFunc");
 
             var test = new CSharpAnalyzerTest<UnityStaticStateAnalyzer, DefaultVerifier>
             {
                 TestState = { Sources = { testCode, UnityEngineSource } },
             };
 
-            test.ExpectedDiagnostics.Add(expected);
+            test.ExpectedDiagnostics.Add(expected1);
+            test.ExpectedDiagnostics.Add(expected2);
+            test.ExpectedDiagnostics.Add(expected3);
             await test.RunAsync();
         }
 
@@ -265,18 +270,23 @@ public class TestClass
     public static int myField2;
 
     [RuntimeInitializeOnLoadMethod]
-    static void Reset()
+    static void {|#0:Reset|}()
     {
         myField1 += 1;
         myField2++;
     }
 }
 ";
+            var expected0 = new DiagnosticResult("SIUA012", DiagnosticSeverity.Error).WithLocation(0).WithArguments("field", "myField1");
+            var expected1 = new DiagnosticResult("SIUA012", DiagnosticSeverity.Error).WithLocation(0).WithArguments("field", "myField2");
+
             var test = new CSharpAnalyzerTest<UnityStaticStateAnalyzer, DefaultVerifier>
             {
                 TestState = { Sources = { testCode, UnityEngineSource } },
             };
 
+            test.ExpectedDiagnostics.Add(expected0);
+            test.ExpectedDiagnostics.Add(expected1);
             await test.RunAsync();
         }
 
@@ -297,10 +307,10 @@ public class TestClass
     }
 }
 ";
-            var expected0 = new DiagnosticResult("SIUA012", DiagnosticSeverity.Warning)
+            var expected0 = new DiagnosticResult("SIUA012", DiagnosticSeverity.Error)
                 .WithLocation(0)
                 .WithArguments("field", "myField");
-            var expected1 = new DiagnosticResult("SIUA012", DiagnosticSeverity.Warning)
+            var expected1 = new DiagnosticResult("SIUA012", DiagnosticSeverity.Error)
                 .WithLocation(0)
                 .WithArguments("property", "MyProperty");
 

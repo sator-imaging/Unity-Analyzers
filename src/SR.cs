@@ -44,7 +44,7 @@ namespace UnityAnalyzers
             title: "Missing state reset in RuntimeInitializeOnLoadMethod",
             messageFormat: "Static {0} '{1}' is not reset in this [RuntimeInitializeOnLoadMethod] method.",
             category: Category,
-            defaultSeverity: DiagnosticSeverity.Warning,
+            defaultSeverity: DiagnosticSeverity.Error,
             isEnabledByDefault: true
         );
     }

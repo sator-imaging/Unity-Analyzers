@@ -128,18 +128,6 @@ namespace UnityAnalyzers
                 base.VisitSimpleAssignment(operation);
             }
 
-            public override void VisitCompoundAssignment(ICompoundAssignmentOperation operation)
-            {
-                RegisterTarget(operation.Target);
-                base.VisitCompoundAssignment(operation);
-            }
-
-            public override void VisitIncrementOrDecrement(IIncrementOrDecrementOperation operation)
-            {
-                RegisterTarget(operation.Target);
-                base.VisitIncrementOrDecrement(operation);
-            }
-
             private void RegisterTarget(IOperation target)
             {
                 if (target is IMemberReferenceOperation memberReference)
