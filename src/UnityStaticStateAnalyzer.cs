@@ -25,7 +25,7 @@ namespace UnityAnalyzers
         private static void AnalyzeNamedType(SymbolAnalysisContext context)
         {
             var namedType = (INamedTypeSymbol)context.Symbol;
-            if (namedType.TypeKind == TypeKind.Enum) return;
+            if (namedType.IsImplicitlyDeclared || namedType.TypeKind == TypeKind.Enum) return;
 
             var members = namedType.GetMembers();
 
