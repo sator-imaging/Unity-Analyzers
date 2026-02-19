@@ -19,18 +19,7 @@ namespace UnityAnalyzers
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
 
-            context.RegisterCompilationStartAction(compilationContext =>
-            {
-                // The analyzer is work only IF the project references "UnityEngine.dll" (name based match).
-                // Use GetTypeByMetadataName as a fallback for testing or modularized UnityEngine references.
-                var referencesUnityEngine = compilationContext.Compilation.ReferencedAssemblyNames
-                    .Any(n => n.Name == "UnityEngine")
-                    || compilationContext.Compilation.GetTypeByMetadataName("UnityEngine.Object") != null;
-
-                if (!referencesUnityEngine) return;
-
-                compilationContext.RegisterSymbolAction(AnalyzeNamedType, SymbolKind.NamedType);
-            });
+            context.RegisterSymbolAction(AnalyzeNamedType, SymbolKind.NamedType);
         }
 
         private static void AnalyzeNamedType(SymbolAnalysisContext context)

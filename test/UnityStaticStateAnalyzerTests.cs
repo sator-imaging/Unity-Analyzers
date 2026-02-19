@@ -98,21 +98,5 @@ public class TestClass
             await test.RunAsync();
         }
 
-        [Fact]
-        public async Task TestNoWarningWithoutUnityEngine()
-        {
-            var testCode = @"
-public class TestClass
-{
-    public static int myField;
-}
-";
-            var test = new CSharpAnalyzerTest<UnityStaticStateAnalyzer, DefaultVerifier>
-            {
-                TestState = { Sources = { testCode } },
-            };
-
-            await test.RunAsync();
-        }
     }
 }
