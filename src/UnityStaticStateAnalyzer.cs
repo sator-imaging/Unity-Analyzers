@@ -22,6 +22,7 @@ namespace UnityAnalyzers
             context.EnableConcurrentExecution();
 
             context.RegisterSymbolAction(AnalyzeNamedType, SymbolKind.NamedType);
+            context.RegisterSymbolAction(AnalyzeNamedTypeReset, SymbolKind.NamedType);
         }
 
         private static void AnalyzeNamedType(SymbolAnalysisContext context)
@@ -30,14 +31,13 @@ namespace UnityAnalyzers
             if (namedType.IsImplicitlyDeclared || namedType.TypeKind == TypeKind.Enum) return;
 
             var members = namedType.GetMembers();
-            var targetMembers = members.Where(IsTargetStaticMember).ToArray();
-            if (targetMembers.Length == 0) return;
 
-            var resetMethods = members.OfType<IMethodSymbol>().Where(m => m.IsStatic && IsResetMethod(m)).ToArray();
+            bool hasResetMethod = members.Any(m => m.IsStatic && m is IMethodSymbol method && IsResetMethod(method));
+            if (hasResetMethod) return;
 
-            if (resetMethods.Length == 0)
+            foreach (var member in members)
             {
-                foreach (var member in targetMembers)
+                if (IsTargetStaticMember(member))
                 {
                     string memberType = GetMemberTypeString(member);
                     context.ReportDiagnostic(Diagnostic.Create(
@@ -47,33 +47,47 @@ namespace UnityAnalyzers
                         member.Name));
                 }
             }
-            else
+        }
+
+        private static void AnalyzeNamedTypeReset(SymbolAnalysisContext context)
+        {
+            var namedType = (INamedTypeSymbol)context.Symbol;
+            if (namedType.IsImplicitlyDeclared || namedType.TypeKind == TypeKind.Enum) return;
+
+            var members = namedType.GetMembers();
+            var resetMethods = members.OfType<IMethodSymbol>().Where(m => m.IsStatic && IsResetMethod(m)).ToArray();
+            if (resetMethods.Length == 0) return;
+
+            var targetMembers = members.Where(IsTargetStaticMember).ToArray();
+            if (targetMembers.Length == 0) return;
+
+            var assignedSymbols = new HashSet<ISymbol>(SymbolEqualityComparer.Default);
+            foreach (var method in resetMethods)
             {
-                var assignedSymbols = new HashSet<ISymbol>(SymbolEqualityComparer.Default);
-                foreach (var method in resetMethods)
+                foreach (var reference in method.DeclaringSyntaxReferences)
                 {
-                    foreach (var reference in method.DeclaringSyntaxReferences)
+                    var syntax = reference.GetSyntax();
+                    var semanticModel = context.Compilation.GetSemanticModel(syntax.SyntaxTree);
+                    var operation = semanticModel.GetOperation(syntax);
+                    if (operation != null)
                     {
-                        var syntax = reference.GetSyntax();
-                        var semanticModel = context.Compilation.GetSemanticModel(syntax.SyntaxTree);
-                        var operation = semanticModel.GetOperation(syntax);
                         var finder = new AssignmentFinder();
                         finder.Visit(operation);
                         assignedSymbols.UnionWith(finder.AssignedSymbols);
                     }
                 }
+            }
 
-                foreach (var member in targetMembers)
+            foreach (var member in targetMembers)
+            {
+                if (!assignedSymbols.Contains(member))
                 {
-                    if (!assignedSymbols.Contains(member))
-                    {
-                        string memberType = GetMemberTypeString(member);
-                        context.ReportDiagnostic(Diagnostic.Create(
-                            SR.MissingStateResetInRuntimeInitializeOnLoadMethod,
-                            member.Locations[0],
-                            memberType,
-                            member.Name));
-                    }
+                    string memberType = GetMemberTypeString(member);
+                    context.ReportDiagnostic(Diagnostic.Create(
+                        SR.MissingStateResetInRuntimeInitializeOnLoadMethod,
+                        member.Locations[0],
+                        memberType,
+                        member.Name));
                 }
             }
         }
