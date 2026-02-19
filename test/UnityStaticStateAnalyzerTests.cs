@@ -25,7 +25,7 @@ public class TestClass
     public static int {|#0:myField|};
 }
 ";
-            var expected = new DiagnosticResult("SIUA003", DiagnosticSeverity.Warning)
+            var expected = new DiagnosticResult("SIUA011", DiagnosticSeverity.Warning)
                 .WithLocation(0)
                 .WithArguments("field", "myField");
 
@@ -47,7 +47,7 @@ public class TestClass
     public static int {|#0:MyProperty|} { get; set; }
 }
 ";
-            var expected = new DiagnosticResult("SIUA003", DiagnosticSeverity.Warning)
+            var expected = new DiagnosticResult("SIUA011", DiagnosticSeverity.Warning)
                 .WithLocation(0)
                 .WithArguments("property", "MyProperty");
 
