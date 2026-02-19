@@ -108,6 +108,7 @@ namespace UnityAnalyzers
             foreach (var member in members)
             {
                 if (member is IMethodSymbol) continue;
+
                 if (IsTargetStaticMember(member) && !walker.AssignedSymbols.Contains(member))
                 {
                     context.ReportDiagnostic(Diagnostic.Create(
