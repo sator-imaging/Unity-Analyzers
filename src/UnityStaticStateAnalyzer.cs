@@ -40,7 +40,7 @@ namespace UnityAnalyzers
                     if (member is IFieldSymbol) memberType = "field";
                     else if (member is IPropertySymbol) memberType = "property";
                     else if (member is IEventSymbol) memberType = "event";
-                    else continue;
+                    else memberType = "member";
 
                     context.ReportDiagnostic(Diagnostic.Create(
                         SR.StaticStateSurvivesAcrossPlayMode,
@@ -63,23 +63,20 @@ namespace UnityAnalyzers
             if (member is IFieldSymbol field)
             {
                 if (field.HasConstantValue) return false;
-                if (field.IsReadOnly && IsImmutable(field.Type))
-                {
-                    return false;
-                }
-                return true;
+                return !(field.IsReadOnly && IsImmutable(field.Type));
             }
 
             if (member is IPropertySymbol property)
             {
-                if (property.IsReadOnly && IsImmutable(property.Type))
-                {
-                    return false;
-                }
-                return true;
+                return !(property.IsReadOnly && IsImmutable(property.Type));
             }
 
-            return member is IEventSymbol;
+            if (member is IMethodSymbol method)
+            {
+                return method.MethodKind is not (MethodKind.PropertyGet or MethodKind.PropertySet or MethodKind.EventAdd or MethodKind.EventRemove);
+            }
+
+            return true;
         }
 
         private static bool IsImmutable(ITypeSymbol type)
