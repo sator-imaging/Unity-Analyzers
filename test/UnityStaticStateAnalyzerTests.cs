@@ -136,5 +136,39 @@ public class TestClass
             test.ExpectedDiagnostics.Add(expected1);
             await test.RunAsync();
         }
+
+        [Fact]
+        public async Task TestReadonlyPropertiesAndEnums()
+        {
+            var testCode = @"
+public enum MyEnum { A, B }
+public readonly struct MyReadOnlyStruct { public readonly int X; }
+
+public class TestClass
+{
+    public static MyEnum ReadonlyEnumProperty => MyEnum.A;
+    public static int ReadonlyIntProperty => 0;
+    public static MyReadOnlyStruct ReadonlyStructProperty => new MyReadOnlyStruct();
+
+    public static int {|#0:MutableProperty|} { get; set; }
+    public static System.Action {|#1:ReadonlyDelegateProperty|} => null;
+}
+";
+            var expected0 = new DiagnosticResult("SIUA011", DiagnosticSeverity.Warning)
+                .WithLocation(0)
+                .WithArguments("property", "MutableProperty");
+            var expected1 = new DiagnosticResult("SIUA011", DiagnosticSeverity.Warning)
+                .WithLocation(1)
+                .WithArguments("property", "ReadonlyDelegateProperty");
+
+            var test = new CSharpAnalyzerTest<UnityStaticStateAnalyzer, DefaultVerifier>
+            {
+                TestState = { Sources = { testCode, UnityEngineSource } },
+            };
+
+            test.ExpectedDiagnostics.Add(expected0);
+            test.ExpectedDiagnostics.Add(expected1);
+            await test.RunAsync();
+        }
     }
 }

@@ -25,6 +25,8 @@ namespace UnityAnalyzers
         private static void AnalyzeNamedType(SymbolAnalysisContext context)
         {
             var namedType = (INamedTypeSymbol)context.Symbol;
+            if (namedType.TypeKind == TypeKind.Enum) return;
+
             var members = namedType.GetMembers();
 
             bool hasResetMethod = members.Any(m => m.IsStatic && m is IMethodSymbol method && IsResetMethod(method));
@@ -34,7 +36,11 @@ namespace UnityAnalyzers
             {
                 if (IsTargetStaticMember(member))
                 {
-                    var memberType = member is IFieldSymbol ? "field" : "property";
+                    string memberType;
+                    if (member is IFieldSymbol) memberType = "field";
+                    else if (member is IPropertySymbol) memberType = "property";
+                    else continue;
+
                     context.ReportDiagnostic(Diagnostic.Create(
                         SR.StaticStateSurvivesAcrossPlayMode,
                         member.Locations[0],
@@ -55,27 +61,60 @@ namespace UnityAnalyzers
 
             if (member is IFieldSymbol field)
             {
-                if (field.IsReadOnly)
+                if (field.IsReadOnly && IsImmutable(field.Type))
                 {
-                    var type = field.Type;
-                    if (type.SpecialType == SpecialType.System_String) return false;
-
-                    if (type is INamedTypeSymbol namedType)
-                    {
-                        if (namedType.IsValueType)
-                        {
-                            // Primitive types (int, float, etc.) are essentially readonly
-                            if (namedType.SpecialType != SpecialType.None) return false;
-
-                            // User-defined readonly structs
-                            if (namedType.IsReadOnly) return false;
-                        }
-                    }
+                    return false;
                 }
                 return true;
             }
 
-            return member is IPropertySymbol;
+            if (member is IPropertySymbol property)
+            {
+                if (property.IsReadOnly && IsImmutable(property.Type))
+                {
+                    return false;
+                }
+                return true;
+            }
+
+            return false;
+        }
+
+        private static bool IsImmutable(ITypeSymbol type)
+        {
+            if (type.SpecialType == SpecialType.System_String) return true;
+
+            if (type is INamedTypeSymbol namedType)
+            {
+                if (namedType.IsValueType)
+                {
+                    if (namedType.TypeKind == TypeKind.Enum) return true;
+
+                    switch (namedType.SpecialType)
+                    {
+                        case SpecialType.System_Boolean:
+                        case SpecialType.System_Char:
+                        case SpecialType.System_SByte:
+                        case SpecialType.System_Byte:
+                        case SpecialType.System_Int16:
+                        case SpecialType.System_UInt16:
+                        case SpecialType.System_Int32:
+                        case SpecialType.System_UInt32:
+                        case SpecialType.System_Int64:
+                        case SpecialType.System_UInt64:
+                        case SpecialType.System_Decimal:
+                        case SpecialType.System_Single:
+                        case SpecialType.System_Double:
+                        case SpecialType.System_IntPtr:
+                        case SpecialType.System_UIntPtr:
+                            return true;
+                    }
+
+                    if (namedType.IsReadOnly) return true;
+                }
+            }
+
+            return false;
         }
     }
 }
