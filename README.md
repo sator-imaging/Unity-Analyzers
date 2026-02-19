@@ -202,7 +202,7 @@ await DoFurtherAsync(); // OK
 
 ## `SIUA011`: Static state survives across play modes
 
-**Severity: Warning**
+**Severity: Error**
 
 Static fields and properties survive across play modes in Unity if Domain Reloading is disabled. This can lead to unexpected behavior where state from a previous session persists into the next one.
 
@@ -232,7 +232,7 @@ public class MyService
 ```csharp
 public class MyService
 {
-    public static int Counter; // Warning: SIUA011
+    public static int Counter; // Error: SIUA011
 }
 ```
 

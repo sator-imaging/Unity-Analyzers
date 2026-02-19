@@ -202,7 +202,7 @@ await DoFurtherAsync(); // OK
 
 ## `SIUA011`: 静的状態がプレイモードを跨いで残っている
 
-**重大度: Warning**
+**重大度: Error**
 
 Unity ではドメインリロードが無効になっている場合、静的フィールドやプロパティはプレイモードを跨いで保持されます。これにより、前のセッションの状態が次のセッションに引き継がれ、予期しない動作を引き起こす可能性があります。
 
@@ -232,7 +232,7 @@ public class MyService
 ```csharp
 public class MyService
 {
-    public static int Counter; // Warning: SIUA011
+    public static int Counter; // Error: SIUA011
 }
 ```
 
