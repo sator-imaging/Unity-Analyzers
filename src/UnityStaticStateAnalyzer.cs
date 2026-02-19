@@ -52,13 +52,7 @@ namespace UnityAnalyzers
         private static bool IsTargetStaticMember(ISymbol member)
         {
             if (!member.IsStatic || member.IsImplicitlyDeclared) return false;
-
-            if (member is IFieldSymbol field)
-            {
-                return !field.HasConstantValue;
-            }
-
-            return member is IPropertySymbol;
+            return member is IFieldSymbol or IPropertySymbol;
         }
     }
 }
