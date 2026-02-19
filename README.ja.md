@@ -193,3 +193,43 @@ else
 
 await DoFurtherAsync(); // OK
 ```
+
+# 静的状態の解析
+
+`UnityStaticStateAnalyzer` は、ドメインリロードが無効になっている場合に静的状態がプレイモードを跨いで残らないことを確認します。
+
+## `SIUA011`: 静的状態がプレイモードを跨いで残っている
+
+**重大度: Warning**
+
+Unity ではドメインリロードが無効になっている場合、静的フィールドやプロパティはプレイモードを跨いで保持されます。これにより、前のセッションの状態が次のセッションに引き継がれ、予期しない動作を引き起こす可能性があります。
+
+**ルール:**
+静的フィールドやプロパティは、プロジェクトのロード時やプレイモードへの進入時にリセットされるべきです。これは通常、`[RuntimeInitializeOnLoadMethod]` 属性が付いたメソッドを使用して行われます。
+
+**マッチ理由:**
+- 静的フィールド（`const` を除く）。
+- 静的プロパティ。
+- クラス内に `[RuntimeInitializeOnLoadMethod]` または `[RuntimeInitializeOnLoadMethodAttribute]` が付いた静的メソッドが存在しない。
+
+**安全なパターン:**
+```csharp
+public class MyService
+{
+    public static int Counter;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void Init()
+    {
+        Counter = 0;
+    }
+}
+```
+
+**危険なパターン:**
+```csharp
+public class MyService
+{
+    public static int Counter; // Warning: SIUA011
+}
+```

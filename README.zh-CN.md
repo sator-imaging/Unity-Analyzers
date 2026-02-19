@@ -193,3 +193,43 @@ else
 
 await DoFurtherAsync(); // OK
 ```
+
+# 静态状态分析
+
+`UnityStaticStateAnalyzer` 确保在禁用域重新加载（Domain Reloading）时，静态状态不会在播放模式之间存留。
+
+## `SIUA011`: 静态状态在播放模式之间存留
+
+**严重程度: Warning**
+
+在 Unity 中，如果禁用了域重新加载，静态字段和属性将在播放模式之间保持。这可能导致上一个会话的状态持久化到下一个会话中，从而引起意外行为。
+
+**规则:**
+静态字段和属性应在项目加载或进入播放模式时重置。这通常使用带有 `[RuntimeInitializeOnLoadMethod]` 属性的方法来完成。
+
+**匹配原因:**
+- 任何静态字段（不包括 `const`）。
+- 任何静态属性。
+- 类中不包含带有 `[RuntimeInitializeOnLoadMethod]` 或 `[RuntimeInitializeOnLoadMethodAttribute]` 属性的静态方法。
+
+**安全模式:**
+```csharp
+public class MyService
+{
+    public static int Counter;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void Init()
+    {
+        Counter = 0;
+    }
+}
+```
+
+**不安全模式:**
+```csharp
+public class MyService
+{
+    public static int Counter; // Warning: SIUA011
+}
+```
