@@ -58,7 +58,7 @@ namespace UnityAnalyzers
             var resetMethods = members.OfType<IMethodSymbol>().Where(m => m.IsStatic && IsResetMethod(m)).ToArray();
             if (resetMethods.Length == 0) return;
 
-            var targetMembers = members.Where(IsTargetStaticMember).ToArray();
+            var targetMembers = members.Where(IsRequiredResetMember).ToArray();
             if (targetMembers.Length == 0) return;
 
             var assignedSymbols = new HashSet<ISymbol>(SymbolEqualityComparer.Default);
@@ -120,12 +120,17 @@ namespace UnityAnalyzers
                 return !(property.IsReadOnly && IsImmutable(property.Type));
             }
 
-            if (member is IEventSymbol)
+            if (member is IMethodSymbol method)
             {
-                return true;
+                return method.MethodKind is not (MethodKind.PropertyGet or MethodKind.PropertySet or MethodKind.EventAdd or MethodKind.EventRemove);
             }
 
-            return false;
+            return true;
+        }
+
+        private static bool IsRequiredResetMember(ISymbol member)
+        {
+            return (member is IFieldSymbol or IPropertySymbol or IEventSymbol) && IsTargetStaticMember(member);
         }
 
         private static bool IsImmutable(ITypeSymbol type)

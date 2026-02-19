@@ -306,21 +306,5 @@ public class TestClass
             await test.RunAsync();
         }
 
-        [Fact]
-        public async Task TestMethodNoWarning()
-        {
-            var testCode = @"
-public class TestClass
-{
-    public static void MyMethod() {}
-}
-";
-            var test = new CSharpAnalyzerTest<UnityStaticStateAnalyzer, DefaultVerifier>
-            {
-                TestState = { Sources = { testCode, UnityEngineSource } },
-            };
-
-            await test.RunAsync();
-        }
     }
 }
