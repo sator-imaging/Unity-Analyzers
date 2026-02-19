@@ -193,3 +193,43 @@ else
 
 await DoFurtherAsync(); // OK
 ```
+
+# Static State Analysis
+
+`UnityStaticStateAnalyzer` ensures that static state doesn't survive across play modes when Domain Reloading is disabled.
+
+## `SIUA011`: Static state survives across play modes
+
+**Severity: Warning**
+
+Static fields and properties survive across play modes in Unity if Domain Reloading is disabled. This can lead to unexpected behavior where state from a previous session persists into the next one.
+
+**Rule:**
+Static fields and properties should be reset when the project is loaded or entering play mode. This is typically done using a method marked with the `[RuntimeInitializeOnLoadMethod]` attribute.
+
+**Why it matches:**
+- Any static field (except `const` or `readonly` fields of immutable types like `string`, primitive types, or `readonly struct`).
+- Any static property (except getter-only properties of immutable types).
+- The class does NOT contain a static method marked with `[RuntimeInitializeOnLoadMethod]` or `[RuntimeInitializeOnLoadMethodAttribute]`.
+
+**Safe Pattern:**
+```csharp
+public class MyService
+{
+    public static int Counter;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void Init()
+    {
+        Counter = 0;
+    }
+}
+```
+
+**Unsafe Pattern:**
+```csharp
+public class MyService
+{
+    public static int Counter; // Warning: SIUA011
+}
+```

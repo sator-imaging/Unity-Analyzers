@@ -29,5 +29,14 @@ namespace UnityAnalyzers
             defaultSeverity: DiagnosticSeverity.Warning,
             isEnabledByDefault: true
         );
+
+        public static readonly DiagnosticDescriptor StaticStateSurvivesAcrossPlayMode = new DiagnosticDescriptor(
+            id: IdPrefix + "011",
+            title: "Static state survives across play modes",
+            messageFormat: "Static {0} '{1}' survives across play modes when Domain Reloading is disabled. Consider using '[RuntimeInitializeOnLoadMethod]' to reset it.",
+            category: Category,
+            defaultSeverity: DiagnosticSeverity.Warning,
+            isEnabledByDefault: true
+        );
     }
 }
