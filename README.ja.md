@@ -233,3 +233,28 @@ public class MyService
     public static int Counter; // Warning: SIUA011
 }
 ```
+
+## `SIUA012`: RuntimeInitializeOnLoadMethod での状態リセット漏れ
+
+**重大度: Error**
+
+リセットが必要な静的フィールド、プロパティ、イベント（SIUA011 参照）は、`[RuntimeInitializeOnLoadMethod]` 属性が付いたメソッド内で明示的に値を代入する必要があります。
+
+**ルール:**
+クラス内のすべての可変の静的状態は、初期化メソッド内で単純な代入（`=`）によってリセットされなければなりません。
+
+**危険なパターン:**
+```csharp
+public class MyService
+{
+    public static int Counter;
+    public static string Status;
+
+    [RuntimeInitializeOnLoadMethod]
+    static void Init()
+    {
+        Counter = 0;
+        // Status がリセットされていない！ -> Error: SIUA012 が 'Init' に報告される
+    }
+}
+```
