@@ -52,7 +52,30 @@ namespace UnityAnalyzers
         private static bool IsTargetStaticMember(ISymbol member)
         {
             if (!member.IsStatic || member.IsImplicitlyDeclared) return false;
-            return member is IFieldSymbol or IPropertySymbol;
+
+            if (member is IFieldSymbol field)
+            {
+                if (field.IsReadOnly)
+                {
+                    var type = field.Type;
+                    if (type.SpecialType == SpecialType.System_String) return false;
+
+                    if (type is INamedTypeSymbol namedType)
+                    {
+                        if (namedType.IsValueType)
+                        {
+                            // Primitive types (int, float, etc.) are essentially readonly
+                            if (namedType.SpecialType != SpecialType.None) return false;
+
+                            // User-defined readonly structs
+                            if (namedType.IsReadOnly) return false;
+                        }
+                    }
+                }
+                return true;
+            }
+
+            return member is IPropertySymbol;
         }
     }
 }
