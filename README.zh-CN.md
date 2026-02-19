@@ -233,3 +233,28 @@ public class MyService
     public static int Counter; // Warning: SIUA011
 }
 ```
+
+## `SIUA012`: RuntimeInitializeOnLoadMethod 中缺少状态重置
+
+**严重性: Error**
+
+需要重置的静态字段、属性和事件（参见 SIUA011）必须在带有 `[RuntimeInitializeOnLoadMethod]` 属性的方法中显式赋值。
+
+**规则:**
+类中的所有可变静态状态必须在初始化方法中通过简单赋值（`=`）进行重置。
+
+**不安全模式:**
+```csharp
+public class MyService
+{
+    public static int Counter;
+    public static string Status;
+
+    [RuntimeInitializeOnLoadMethod]
+    static void Init()
+    {
+        Counter = 0;
+        // Status 没有被重置！ -> Error: SIUA012 报告在 'Init' 上
+    }
+}
+```

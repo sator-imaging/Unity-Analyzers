@@ -38,5 +38,14 @@ namespace UnityAnalyzers
             defaultSeverity: DiagnosticSeverity.Warning,
             isEnabledByDefault: true
         );
+
+        public static readonly DiagnosticDescriptor MissingStateResetInRuntimeInitializeOnLoadMethod = new DiagnosticDescriptor(
+            id: IdPrefix + "012",
+            title: "Missing state reset in RuntimeInitializeOnLoadMethod",
+            messageFormat: "Static {0} '{1}' is not reset in this [RuntimeInitializeOnLoadMethod] method.",
+            category: Category,
+            defaultSeverity: DiagnosticSeverity.Error,
+            isEnabledByDefault: true
+        );
     }
 }

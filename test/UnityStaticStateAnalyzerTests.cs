@@ -194,5 +194,134 @@ public class TestClass
             test.ExpectedDiagnostics.Add(expected1);
             await test.RunAsync();
         }
+
+        [Fact]
+        public async Task TestMissingResetWarning()
+        {
+            var testCode = @"
+using UnityEngine;
+using System;
+public class TestClass
+{
+    public static int myField;
+    public static string myString;
+    public static event Action myEvent;
+    public static event Func<int> myFunc;
+
+    [RuntimeInitializeOnLoadMethod]
+    static void {|#0:Reset|}()
+    {
+        myField = 0;
+    }
+}
+";
+            var expected1 = new DiagnosticResult("SIUA012", DiagnosticSeverity.Error).WithLocation(0).WithArguments("field", "myString");
+            var expected2 = new DiagnosticResult("SIUA012", DiagnosticSeverity.Error).WithLocation(0).WithArguments("event", "myEvent");
+            var expected3 = new DiagnosticResult("SIUA012", DiagnosticSeverity.Error).WithLocation(0).WithArguments("event", "myFunc");
+
+            var test = new CSharpAnalyzerTest<UnityStaticStateAnalyzer, DefaultVerifier>
+            {
+                TestState = { Sources = { testCode, UnityEngineSource } },
+            };
+
+            test.ExpectedDiagnostics.Add(expected1);
+            test.ExpectedDiagnostics.Add(expected2);
+            test.ExpectedDiagnostics.Add(expected3);
+            await test.RunAsync();
+        }
+
+        [Fact]
+        public async Task TestAllResets()
+        {
+            var testCode = @"
+using UnityEngine;
+using System;
+public class TestClass
+{
+    public static int myField;
+    public static int MyProperty { get; set; }
+    public static event Action OnSomething;
+
+    [RuntimeInitializeOnLoadMethod]
+    static void Reset()
+    {
+        myField = 0;
+        MyProperty = 0;
+        OnSomething = null;
+    }
+}
+";
+            var test = new CSharpAnalyzerTest<UnityStaticStateAnalyzer, DefaultVerifier>
+            {
+                TestState = { Sources = { testCode, UnityEngineSource } },
+            };
+
+            await test.RunAsync();
+        }
+
+        [Fact]
+        public async Task TestCompoundAndIncrementResets()
+        {
+            var testCode = @"
+using UnityEngine;
+public class TestClass
+{
+    public static int myField1;
+    public static int myField2;
+
+    [RuntimeInitializeOnLoadMethod]
+    static void {|#0:Reset|}()
+    {
+        myField1 += 1;
+        myField2++;
+    }
+}
+";
+            var expected0 = new DiagnosticResult("SIUA012", DiagnosticSeverity.Error).WithLocation(0).WithArguments("field", "myField1");
+            var expected1 = new DiagnosticResult("SIUA012", DiagnosticSeverity.Error).WithLocation(0).WithArguments("field", "myField2");
+
+            var test = new CSharpAnalyzerTest<UnityStaticStateAnalyzer, DefaultVerifier>
+            {
+                TestState = { Sources = { testCode, UnityEngineSource } },
+            };
+
+            test.ExpectedDiagnostics.Add(expected0);
+            test.ExpectedDiagnostics.Add(expected1);
+            await test.RunAsync();
+        }
+
+        [Fact]
+        public async Task TestWarningOnReadOnlyMutableMembers()
+        {
+            var testCode = @"
+using UnityEngine;
+using System.Collections.Generic;
+public class TestClass
+{
+    public static readonly List<int> myField = new List<int>();
+    public static List<int> MyProperty { get; } = new List<int>();
+
+    [RuntimeInitializeOnLoadMethod]
+    static void {|#0:Reset|}()
+    {
+    }
+}
+";
+            var expected0 = new DiagnosticResult("SIUA012", DiagnosticSeverity.Error)
+                .WithLocation(0)
+                .WithArguments("field", "myField");
+            var expected1 = new DiagnosticResult("SIUA012", DiagnosticSeverity.Error)
+                .WithLocation(0)
+                .WithArguments("property", "MyProperty");
+
+            var test = new CSharpAnalyzerTest<UnityStaticStateAnalyzer, DefaultVerifier>
+            {
+                TestState = { Sources = { testCode, UnityEngineSource } },
+            };
+
+            test.ExpectedDiagnostics.Add(expected0);
+            test.ExpectedDiagnostics.Add(expected1);
+            await test.RunAsync();
+        }
     }
 }

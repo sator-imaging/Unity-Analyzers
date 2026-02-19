@@ -233,3 +233,28 @@ public class MyService
     public static int Counter; // Warning: SIUA011
 }
 ```
+
+## `SIUA012`: Missing state reset in RuntimeInitializeOnLoadMethod
+
+**Severity: Error**
+
+Static fields, properties, and events that require a reset (see SIUA011) must be explicitly assigned a value within any method marked with the `[RuntimeInitializeOnLoadMethod]` attribute.
+
+**Rule:**
+All mutable static state in the class must be reset via simple assignment (`=`) in the initialization method.
+
+**Unsafe Pattern:**
+```csharp
+public class MyService
+{
+    public static int Counter;
+    public static string Status;
+
+    [RuntimeInitializeOnLoadMethod]
+    static void Init()
+    {
+        Counter = 0;
+        // Status is NOT reset! -> Error: SIUA012 reported on 'Init'
+    }
+}
+```
