@@ -39,16 +39,10 @@ namespace UnityAnalyzers
             {
                 if (IsTargetStaticMember(member))
                 {
-                    string memberType;
-                    if (member is IFieldSymbol) memberType = "field";
-                    else if (member is IPropertySymbol) memberType = "property";
-                    else if (member is IEventSymbol) memberType = "event";
-                    else memberType = "member";
-
                     context.ReportDiagnostic(Diagnostic.Create(
                         SR.StaticStateSurvivesAcrossPlayMode,
                         member.Locations[0],
-                        memberType,
+                        GetMemberTypeDisplayName(member),
                         member.Name));
                 }
             }
@@ -90,6 +84,14 @@ namespace UnityAnalyzers
             return type.IsReadOnly || type.TypeKind == TypeKind.Enum;
         }
 
+        private static string GetMemberTypeDisplayName(ISymbol member)
+        {
+            if (member is IFieldSymbol) return "field";
+            if (member is IPropertySymbol) return "property";
+            if (member is IEventSymbol) return "event";
+            return "member";
+        }
+
         private static void AnalyzeMethodBody(OperationAnalysisContext context)
         {
             if (context.Operation is not IMethodBodyOperation methodBody) return;
@@ -105,18 +107,12 @@ namespace UnityAnalyzers
 
             foreach (var member in members)
             {
-                if (IsTargetStaticMember(member) && !walker.AssignedSymbols.Contains(member))
+                if (IsTargetStaticMember(member) && member is not IMethodSymbol && !walker.AssignedSymbols.Contains(member))
                 {
-                    string memberType;
-                    if (member is IFieldSymbol) memberType = "field";
-                    else if (member is IPropertySymbol) memberType = "property";
-                    else if (member is IEventSymbol) memberType = "event";
-                    else continue;
-
                     context.ReportDiagnostic(Diagnostic.Create(
                         SR.MissingStateResetInRuntimeInitializeOnLoadMethod,
                         method.Locations[0],
-                        memberType,
+                        GetMemberTypeDisplayName(member),
                         member.Name));
                 }
             }
