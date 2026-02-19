@@ -209,7 +209,7 @@ Static fields and properties should be reset when the project is loaded or enter
 
 **Why it matches:**
 - Any static field (except `readonly` fields of immutable types like `string`, primitive types, or `readonly struct`).
-- Any static property (except `readonly` properties of immutable types).
+- Any static property (except getter-only properties of immutable types).
 - The class does NOT contain a static method marked with `[RuntimeInitializeOnLoadMethod]` or `[RuntimeInitializeOnLoadMethodAttribute]`.
 
 **Safe Pattern:**

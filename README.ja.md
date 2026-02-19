@@ -209,7 +209,7 @@ Unity ではドメインリロードが無効になっている場合、静的�
 
 **マッチ理由:**
 - 静的フィールド（`string`、プリミティブ型、`readonly struct` などの不変型の `readonly` フィールドを除く）。
-- 静的プロパティ（不変型の `readonly` プロパティを除く）。
+- 静的プロパティ（不変型のゲッターのみのプロパティを除く）。
 - クラス内に `[RuntimeInitializeOnLoadMethod]` または `[RuntimeInitializeOnLoadMethodAttribute]` が付いた静的メソッドが存在しない。
 
 **安全なパターン:**
