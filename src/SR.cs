@@ -35,7 +35,7 @@ namespace UnityAnalyzers
             title: "Static state survives across play modes",
             messageFormat: "Static {0} '{1}' survives across play modes when Domain Reloading is disabled. Consider using '[RuntimeInitializeOnLoadMethod]' to reset it.",
             category: Category,
-            defaultSeverity: DiagnosticSeverity.Warning,
+            defaultSeverity: DiagnosticSeverity.Error,
             isEnabledByDefault: true
         );
 

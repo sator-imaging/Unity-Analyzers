@@ -202,7 +202,7 @@ await DoFurtherAsync(); // OK
 
 ## `SIUA011`: 静态状态在播放模式之间存留
 
-**严重程度: Warning**
+**严重程度: Error**
 
 在 Unity 中，如果禁用了域重新加载，静态字段和属性将在播放模式之间保持。这可能导致上一个会话的状态持久化到下一个会话中，从而引起意外行为。
 
@@ -232,7 +232,7 @@ public class MyService
 ```csharp
 public class MyService
 {
-    public static int Counter; // Warning: SIUA011
+    public static int Counter; // Error: SIUA011
 }
 ```
 

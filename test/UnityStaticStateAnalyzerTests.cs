@@ -17,7 +17,7 @@ namespace UnityEngine
 ";
 
         [Fact]
-        public async Task TestStaticFieldWarning()
+        public async Task TestStaticFieldError()
         {
             var testCode = @"
 public class TestClass
@@ -25,7 +25,7 @@ public class TestClass
     public static int {|#0:myField|};
 }
 ";
-            var expected = new DiagnosticResult("SIUA011", DiagnosticSeverity.Warning)
+            var expected = new DiagnosticResult("SIUA011", DiagnosticSeverity.Error)
                 .WithLocation(0)
                 .WithArguments("field", "myField");
 
@@ -39,7 +39,7 @@ public class TestClass
         }
 
         [Fact]
-        public async Task TestStaticPropertyWarning()
+        public async Task TestStaticPropertyError()
         {
             var testCode = @"
 public class TestClass
@@ -47,7 +47,7 @@ public class TestClass
     public static int {|#0:MyProperty|} { get; set; }
 }
 ";
-            var expected = new DiagnosticResult("SIUA011", DiagnosticSeverity.Warning)
+            var expected = new DiagnosticResult("SIUA011", DiagnosticSeverity.Error)
                 .WithLocation(0)
                 .WithArguments("property", "MyProperty");
 
@@ -61,7 +61,7 @@ public class TestClass
         }
 
         [Fact]
-        public async Task TestNoWarningWithResetMethod()
+        public async Task TestNoErrorWithResetMethod()
         {
             var testCode = @"
 using UnityEngine;
@@ -82,7 +82,7 @@ public class TestClass
         }
 
         [Fact]
-        public async Task TestNoWarningOnConst()
+        public async Task TestNoErrorOnConst()
         {
             var testCode = @"
 public class TestClass
@@ -116,10 +116,10 @@ public class TestClass
     public static readonly MyClass {|#1:ReadonlyClass|} = new MyClass();
 }
 ";
-            var expected0 = new DiagnosticResult("SIUA011", DiagnosticSeverity.Warning)
+            var expected0 = new DiagnosticResult("SIUA011", DiagnosticSeverity.Error)
                 .WithLocation(0)
                 .WithArguments("field", "ReadonlyMutableStruct");
-            var expected1 = new DiagnosticResult("SIUA011", DiagnosticSeverity.Warning)
+            var expected1 = new DiagnosticResult("SIUA011", DiagnosticSeverity.Error)
                 .WithLocation(1)
                 .WithArguments("field", "ReadonlyClass");
 
@@ -144,10 +144,10 @@ public class TestClass
     public static event Func<int> {|#1:OnFunc|};
 }
 ";
-            var expected0 = new DiagnosticResult("SIUA011", DiagnosticSeverity.Warning)
+            var expected0 = new DiagnosticResult("SIUA011", DiagnosticSeverity.Error)
                 .WithLocation(0)
                 .WithArguments("event", "OnSomething");
-            var expected1 = new DiagnosticResult("SIUA011", DiagnosticSeverity.Warning)
+            var expected1 = new DiagnosticResult("SIUA011", DiagnosticSeverity.Error)
                 .WithLocation(1)
                 .WithArguments("event", "OnFunc");
 
@@ -178,10 +178,10 @@ public class TestClass
     public static System.Action {|#1:ReadonlyDelegateProperty|} => null;
 }
 ";
-            var expected0 = new DiagnosticResult("SIUA011", DiagnosticSeverity.Warning)
+            var expected0 = new DiagnosticResult("SIUA011", DiagnosticSeverity.Error)
                 .WithLocation(0)
                 .WithArguments("property", "MutableProperty");
-            var expected1 = new DiagnosticResult("SIUA011", DiagnosticSeverity.Warning)
+            var expected1 = new DiagnosticResult("SIUA011", DiagnosticSeverity.Error)
                 .WithLocation(1)
                 .WithArguments("property", "ReadonlyDelegateProperty");
 
@@ -196,7 +196,7 @@ public class TestClass
         }
 
         [Fact]
-        public async Task TestMissingResetWarning()
+        public async Task TestMissingResetError()
         {
             var testCode = @"
 using UnityEngine;
@@ -291,7 +291,7 @@ public class TestClass
         }
 
         [Fact]
-        public async Task TestWarningOnReadOnlyMutableMembers()
+        public async Task TestErrorOnReadOnlyMutableMembers()
         {
             var testCode = @"
 using UnityEngine;
