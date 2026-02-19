@@ -134,6 +134,34 @@ public class TestClass
         }
 
         [Fact]
+        public async Task TestStaticEvents()
+        {
+            var testCode = @"
+using System;
+public class TestClass
+{
+    public static event Action {|#0:OnSomething|};
+    public static event Func<int> {|#1:OnFunc|};
+}
+";
+            var expected0 = new DiagnosticResult("SIUA011", DiagnosticSeverity.Warning)
+                .WithLocation(0)
+                .WithArguments("event", "OnSomething");
+            var expected1 = new DiagnosticResult("SIUA011", DiagnosticSeverity.Warning)
+                .WithLocation(1)
+                .WithArguments("event", "OnFunc");
+
+            var test = new CSharpAnalyzerTest<UnityStaticStateAnalyzer, DefaultVerifier>
+            {
+                TestState = { Sources = { testCode, UnityEngineSource } },
+            };
+
+            test.ExpectedDiagnostics.Add(expected0);
+            test.ExpectedDiagnostics.Add(expected1);
+            await test.RunAsync();
+        }
+
+        [Fact]
         public async Task TestReadonlyPropertiesAndEnums()
         {
             var testCode = @"

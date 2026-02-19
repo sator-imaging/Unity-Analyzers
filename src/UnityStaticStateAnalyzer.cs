@@ -39,6 +39,7 @@ namespace UnityAnalyzers
                     string memberType;
                     if (member is IFieldSymbol) memberType = "field";
                     else if (member is IPropertySymbol) memberType = "property";
+                    else if (member is IEventSymbol) memberType = "event";
                     else continue;
 
                     context.ReportDiagnostic(Diagnostic.Create(
@@ -78,7 +79,7 @@ namespace UnityAnalyzers
                 return true;
             }
 
-            return false;
+            return member is IEventSymbol;
         }
 
         private static bool IsImmutable(ITypeSymbol type)
