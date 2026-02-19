@@ -200,6 +200,8 @@ await DoFurtherAsync(); // OK
 
 `UnityStaticStateAnalyzer` 确保在禁用域重新加载（Domain Reloading）时，静态状态不会在播放模式之间存留。
 
+![](./docs/UnityStaticStateAnalyzer.gif)
+
 ## `SIUA011`: 静态状态在播放模式之间存留
 
 **严重程度: Error**

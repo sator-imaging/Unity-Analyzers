@@ -200,6 +200,8 @@ await DoFurtherAsync(); // OK
 
 `UnityStaticStateAnalyzer` ensures that static state doesn't survive across play modes when Domain Reloading is disabled.
 
+![](./docs/UnityStaticStateAnalyzer.gif)
+
 ## `SIUA011`: Static state survives across play modes
 
 **Severity: Error**

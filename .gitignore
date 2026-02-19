@@ -1,11 +1,19 @@
-.*
+bin
+obj
+!*.png
+!*.gif
+
+/*
 !.github
+!docs
+!src
+!test
+
 !.gitignore
+!*.props
+!*.slnx
 
 *.md
 !README.md
 !README.*.md
 !LICENSE.md
-
-bin
-obj

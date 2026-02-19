@@ -200,6 +200,8 @@ await DoFurtherAsync(); // OK
 
 `UnityStaticStateAnalyzer` は、ドメインリロードが無効になっている場合に静的状態がプレイモードを跨いで残らないことを確認します。
 
+![](./docs/UnityStaticStateAnalyzer.gif)
+
 ## `SIUA011`: 静的状態がプレイモードを跨いで残っている
 
 **重大度: Error**
