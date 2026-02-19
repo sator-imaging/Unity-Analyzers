@@ -209,7 +209,7 @@ await DoFurtherAsync(); // OK
 
 **匹配原因:**
 - 任何静态字段（不包括 `string`、原始类型或 `readonly struct` 等不可变类型的 `readonly` 字段）。
-- 任何静态属性。
+- 任何静态属性（不包括不可变类型的 `readonly` 属性）。
 - 类中不包含带有 `[RuntimeInitializeOnLoadMethod]` 或 `[RuntimeInitializeOnLoadMethodAttribute]` 属性的静态方法。
 
 **安全模式:**
