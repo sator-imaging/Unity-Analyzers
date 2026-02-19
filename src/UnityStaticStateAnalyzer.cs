@@ -105,7 +105,7 @@ namespace UnityAnalyzers
 
             foreach (var member in members)
             {
-                if (IsRequiredResetMember(member) && !walker.AssignedSymbols.Contains(member))
+                if (IsTargetStaticMember(member) && !walker.AssignedSymbols.Contains(member))
                 {
                     string memberType;
                     if (member is IFieldSymbol) memberType = "field";
@@ -120,28 +120,6 @@ namespace UnityAnalyzers
                         member.Name));
                 }
             }
-        }
-
-        private static bool IsRequiredResetMember(ISymbol member)
-        {
-            if (!member.IsStatic || member.IsImplicitlyDeclared) return false;
-
-            if (member is IFieldSymbol field)
-            {
-                return !field.HasConstantValue && !field.IsReadOnly;
-            }
-
-            if (member is IPropertySymbol property)
-            {
-                return !property.IsReadOnly;
-            }
-
-            if (member is IEventSymbol)
-            {
-                return true;
-            }
-
-            return false;
         }
 
         private class AssignmentWalker : OperationWalker

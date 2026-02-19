@@ -281,7 +281,7 @@ public class TestClass
         }
 
         [Fact]
-        public async Task TestNoWarningOnReadOnlyMembers()
+        public async Task TestWarningOnReadOnlyMutableMembers()
         {
             var testCode = @"
 using UnityEngine;
@@ -292,16 +292,25 @@ public class TestClass
     public static List<int> MyProperty { get; } = new List<int>();
 
     [RuntimeInitializeOnLoadMethod]
-    static void Reset()
+    static void {|#0:Reset|}()
     {
     }
 }
 ";
+            var expected0 = new DiagnosticResult("SIUA012", DiagnosticSeverity.Warning)
+                .WithLocation(0)
+                .WithArguments("field", "myField");
+            var expected1 = new DiagnosticResult("SIUA012", DiagnosticSeverity.Warning)
+                .WithLocation(0)
+                .WithArguments("property", "MyProperty");
+
             var test = new CSharpAnalyzerTest<UnityStaticStateAnalyzer, DefaultVerifier>
             {
                 TestState = { Sources = { testCode, UnityEngineSource } },
             };
 
+            test.ExpectedDiagnostics.Add(expected0);
+            test.ExpectedDiagnostics.Add(expected1);
             await test.RunAsync();
         }
     }
