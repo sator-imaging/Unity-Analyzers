@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <PropertyGroup Label="NuGetPublishSettings">
-    <NuGetPublishVersion>1.0.0</NuGetPublishVersion>
+    <NuGetPublishVersion>1.1.0</NuGetPublishVersion>
     <NuGetPublishVersionSuffix></NuGetPublishVersionSuffix>
     <!-- relative path from .csproj files, without trailing slash -->
     <NuGetPublishProjectRootRelPath>..</NuGetPublishProjectRootRelPath>
