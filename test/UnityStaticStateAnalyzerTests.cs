@@ -323,5 +323,54 @@ public class TestClass
             test.ExpectedDiagnostics.Add(expected1);
             await test.RunAsync();
         }
+
+        [Fact]
+        public async Task TestDateTimeAndTimeSpan()
+        {
+            var testCode = @"
+using UnityEngine;
+using System;
+public class TestClass1
+{
+    public static readonly DateTime ReadonlyDateTime = DateTime.Now;
+    public static readonly TimeSpan ReadonlyTimeSpan = TimeSpan.Zero;
+
+    public static DateTime {|#0:MutableDateTime|};
+    public static TimeSpan {|#1:MutableTimeSpan|};
+}
+
+public class TestClass2
+{
+    public static DateTime MutableDateTime;
+    public static TimeSpan MutableTimeSpan;
+
+    [RuntimeInitializeOnLoadMethod]
+    static void {|#2:Reset|}()
+    {
+        // MutableDateTime is not reset
+        MutableTimeSpan = TimeSpan.Zero;
+    }
+}
+";
+            var expected0 = new DiagnosticResult("SIUA011", DiagnosticSeverity.Error)
+                .WithLocation(0)
+                .WithArguments("field", "MutableDateTime");
+            var expected1 = new DiagnosticResult("SIUA011", DiagnosticSeverity.Error)
+                .WithLocation(1)
+                .WithArguments("field", "MutableTimeSpan");
+            var expected2 = new DiagnosticResult("SIUA012", DiagnosticSeverity.Error)
+                .WithLocation(2)
+                .WithArguments("field", "MutableDateTime");
+
+            var test = new CSharpAnalyzerTest<UnityStaticStateAnalyzer, DefaultVerifier>
+            {
+                TestState = { Sources = { testCode, UnityEngineSource } },
+            };
+
+            test.ExpectedDiagnostics.Add(expected0);
+            test.ExpectedDiagnostics.Add(expected1);
+            test.ExpectedDiagnostics.Add(expected2);
+            await test.RunAsync();
+        }
     }
 }
