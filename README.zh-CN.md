@@ -262,3 +262,22 @@ public class MyService
     }
 }
 ```
+
+> [!TIP]
+> 如果您尝试在 `Directory.Build.props` 或类似的共享文件中引用分析器，请使用以下条件来仅在 C# 项目为 Unity 项目时启用它：
+> `Condition=" $([System.String]::Copy('$(DefineConstants)').IndexOf('UNITY_5_6_OR_NEWER')) != -1 "`
+>
+> **完整的 `.props` 示例：**
+> ```xml
+> <Project>
+>
+>     <!-- UnityAnalyzers -->
+>     <ItemGroup Condition=" $([System.String]::Copy('$(DefineConstants)').IndexOf('UNITY_5_6_OR_NEWER')) != -1 ">
+>         <PackageReference Include="SatorImaging.UnityAnalyzers" Version="*-*">
+>             <PrivateAssets>all</PrivateAssets>
+>             <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+>         </PackageReference>
+>     </ItemGroup>
+>
+> </Project>
+> ```

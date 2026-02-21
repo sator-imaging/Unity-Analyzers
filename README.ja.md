@@ -262,3 +262,22 @@ public class MyService
     }
 }
 ```
+
+> [!TIP]
+> `Directory.Build.props` などの共有設定ファイルでアナライザーを参照する場合、C# プロジェクトが Unity プロジェクトである場合のみ有効にするには、以下の条件（Condition）を使用してください。
+> `Condition=" $([System.String]::Copy('$(DefineConstants)').IndexOf('UNITY_5_6_OR_NEWER')) != -1 "`
+>
+> **`.props` ファイルの全体サンプル:**
+> ```xml
+> <Project>
+>
+>     <!-- UnityAnalyzers -->
+>     <ItemGroup Condition=" $([System.String]::Copy('$(DefineConstants)').IndexOf('UNITY_5_6_OR_NEWER')) != -1 ">
+>         <PackageReference Include="SatorImaging.UnityAnalyzers" Version="*-*">
+>             <PrivateAssets>all</PrivateAssets>
+>             <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+>         </PackageReference>
+>     </ItemGroup>
+>
+> </Project>
+> ```
