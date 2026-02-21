@@ -271,13 +271,13 @@ public class MyService
 > ```xml
 > <Project>
 >
->   <!-- UnityAnalyzers -->
->   <ItemGroup Condition=" $([System.String]::Copy('$(DefineConstants)').IndexOf('UNITY_5_6_OR_NEWER')) != -1 ">
->     <PackageReference Include="SatorImaging.UnityAnalyzers" Version="*-*">
->       <PrivateAssets>all</PrivateAssets>
->       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
->     </PackageReference>
->   </ItemGroup>
+>     <!-- UnityAnalyzers -->
+>     <ItemGroup Condition=" $([System.String]::Copy('$(DefineConstants)').IndexOf('UNITY_5_6_OR_NEWER')) != -1 ">
+>         <PackageReference Include="SatorImaging.UnityAnalyzers" Version="*-*">
+>             <PrivateAssets>all</PrivateAssets>
+>             <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+>         </PackageReference>
+>     </ItemGroup>
 >
 > </Project>
 > ```
