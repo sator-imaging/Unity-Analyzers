@@ -15,7 +15,12 @@
 用于 Unity 开发的 Roslyn 分析器，确保代码安全且正确。
 
 - [异步方法分析](#异步方法分析)
+  - [SIUA001: 不可靠的 Unity 对象访问](#siua001-不可靠的-unity-对象访问)
+  - [SIUA002: 安全块内的 await](#siua002-安全块内的-await)
 - [静态状态分析](#静态状态分析)
+  - [SIUA011: 静态状态在播放模式之间存留](#siua011-静态状态在播放模式之间存留)
+  - [SIUA012: RuntimeInitializeOnLoadMethod 中缺少状态重置](#siua012-runtimeinitializeonloadmethod-中缺少状态重置)
+  - [SIUA013: 带有主体的静态属性可能返回无效的静态状态](#siua013-带有主体的静态属性可能返回无效的静态状态)
 
 # 异步方法分析
 
@@ -260,6 +265,36 @@ public class MyService
         Counter = 0;
         // Status 没有被重置！ -> Error: SIUA012 报告在 'Init' 上
     }
+}
+```
+
+## `SIUA013`: 带有主体的静态属性可能返回无效的静态状态
+
+**严重性: Warning**
+
+带有 getter 主体（非自动实现）的静态属性在禁用域重新加载时可能会返回无效或过时的静态状态。
+
+**规则:**
+考虑改用自动实现的属性（例如 `static int Property { get; } = 0;`），或确保返回的值得到了正确管理。
+
+**命中原因:**
+- 任何非自动实现的（具有主体或表达式主体的）静态只读属性。
+- 类中不包含带有 `[RuntimeInitializeOnLoadMethod]` 的静态方法。
+
+**不安全模式:**
+```csharp
+public class MyService
+{
+    // Warning: SIUA013
+    public static int Counter => 123;
+}
+```
+
+**安全模式:**
+```csharp
+public class MyService
+{
+    public static int Counter { get; } = 123;
 }
 ```
 
