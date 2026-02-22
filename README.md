@@ -13,6 +13,8 @@ Roslyn analyzers to ensure safe and correct code when developing with Unity.
 - [Async Method Analysis](#async-method-analysis)
   - [SIUA001](#siua001-unreliable-unity-object-access): Unreliable Unity object access
   - [SIUA002](#siua002-await-in-safe-block): Await in safe block
+- [Async Invocation Analysis](#async-invocation-analysis)
+  - [SIUA021](#siua021-async-invocation-detected): Async invocation detected
 - [Static State Analysis](#static-state-analysis)
   - [SIUA011](#siua011-static-state-survives-across-play-modes): Static state survives across play modes
   - [SIUA012](#siua012-missing-state-reset-in-runtimeinitializeonloadmethod): Missing state reset in RuntimeInitializeOnLoadMethod
@@ -200,6 +202,52 @@ else
 
 await DoFurtherAsync(); // OK
 ```
+
+# Async Invocation Analysis
+
+`AsyncInvocationAnalyzer` detects untracked async execution sources that can escape explicit control flow.
+
+## `SIUA021`: Async invocation detected
+
+**Severity: Error**
+
+This rule reports an error for:
+- Calling a method that returns `Task`, `Task<T>`, `ValueTask`, or `ValueTask<T>` except when directly `await`-ed (e.g. `AsyncMethod();`).
+- Creating or assigning anonymous functions that are async or return a task-like type (e.g. `Action a = async () => await Task.Delay(1);`, `Func<Task> f = () => Task.CompletedTask;`).
+- Delegate or event-handler assignment from task-returning method groups (e.g. `eventHandler += TaskReturningMethod;`, `handler = TaskReturningMethod;`).
+- Method group references to task-returning methods or watched API types (e.g. `var m = TaskReturningMethod;`).
+- Field/property/event references on watched API types (e.g. `var p = synchronizationContext.Post;`, `var e = timer.Elapsed;`).
+- Object creation of watched API types (e.g. `new System.Threading.Timer(_ => { });`).
+- Method invocations on watched API types (e.g. `Task.Run(() => { });`, `ThreadPool.QueueUserWorkItem(_ => { });`, `Parallel.For(0, 10, _ => { });`).
+- Watched threading/task APIs:
+  - `System.Threading.Tasks.Task`
+  - `System.Threading.Thread`
+  - `System.Threading.ThreadPool`
+  - `System.Threading.Tasks.Parallel`
+  - `System.Threading.SynchronizationContext`
+  - `System.Threading.Timer`
+  - `System.Threading.PeriodicTimer`
+  - `System.Timers.Timer`
+  - `System.Threading.Tasks.TaskCompletionSource`
+  - `System.Threading.Tasks.TaskCompletionSource<T>`
+
+## Promise Type Customization
+
+You can customize the promise exception type name through `.editorconfig`:
+
+```ini
+[*.cs]
+unity_analyzers_promise_type_name = MyCustomPromise  # Default: Promise
+```
+
+Use the exact key `unity_analyzers_promise_type_name` (plural `analyzers`).
+
+The value is loaded once during analyzer startup and then cached for the analyzer lifetime (changes require restart/reload to apply).
+
+## Limitation: `async void`
+
+`async void` has no awaitable handle (`Task`/`ValueTask`) and no completion/error propagation contract for callers, so call sites cannot reliably track or compose its execution.  
+For that reason, `async void` flows are technically not fully trackable by invocation-tracking patterns.
 
 # Static State Analysis
 

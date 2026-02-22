@@ -56,5 +56,14 @@ namespace UnityAnalyzers
             defaultSeverity: DiagnosticSeverity.Warning,
             isEnabledByDefault: true
         );
+
+        public static readonly DiagnosticDescriptor AsyncInvocationDetected = new DiagnosticDescriptor(
+            id: IdPrefix + "021",
+            title: "Async invocation detected",
+            messageFormat: "Detected untracked async invocation source: {0}.",
+            category: Category,
+            defaultSeverity: DiagnosticSeverity.Error,
+            isEnabledByDefault: true
+        );
     }
 }
