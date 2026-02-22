@@ -1,12 +1,8 @@
 [![nuget](https://img.shields.io/nuget/vpre/SatorImaging.UnityAnalyzers)](https://www.nuget.org/packages/SatorImaging.UnityAnalyzers)
 &nbsp;
-[![DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/sator-imaging/Unity-Analyzers)
-
-[🇺🇸 English](./README.md)
-&nbsp; ❘ &nbsp;
-[🇯🇵 日本語版](./README.ja.md)
-&nbsp; ❘ &nbsp;
-[🇨🇳 简体中文版](./README.zh-CN.md)
+[![🇺🇸](https://img.shields.io/badge/🇺🇸-English-68f)](./README.md)
+[![🇯🇵](https://img.shields.io/badge/🇯🇵-日本語版-68f)](./README.ja.md)
+[![🇨🇳](https://img.shields.io/badge/🇨🇳-简体中文版-68f)](./README.zh-CN.md)
 
 
 
@@ -15,12 +11,16 @@
 Roslyn analyzers to ensure safe and correct code when developing with Unity.
 
 - [Async Method Analysis](#async-method-analysis)
-  - [SIUA001: Unreliable Unity object access](#siua001-unreliable-unity-object-access)
-  - [SIUA002: Await in safe block](#siua002-await-in-safe-block)
+  - [SIUA001](#siua001-unreliable-unity-object-access): Unreliable Unity object access
+  - [SIUA002](#siua002-await-in-safe-block): Await in safe block
 - [Static State Analysis](#static-state-analysis)
-  - [SIUA011: Static state survives across play modes](#siua011-static-state-survives-across-play-modes)
-  - [SIUA012: Missing state reset in RuntimeInitializeOnLoadMethod](#siua012-missing-state-reset-in-runtimeinitializeonloadmethod)
-  - [SIUA013: Static property with body may return invalid static state](#siua013-static-property-with-body-may-return-invalid-static-state)
+  - [SIUA011](#siua011-static-state-survives-across-play-modes): Static state survives across play modes
+  - [SIUA012](#siua012-missing-state-reset-in-runtimeinitializeonloadmethod): Missing state reset in RuntimeInitializeOnLoadMethod
+  - [SIUA013](#siua013-static-property-with-body-may-return-invalid-static-state): Static property with body may return invalid static state
+
+
+
+
 
 # Async Method Analysis
 

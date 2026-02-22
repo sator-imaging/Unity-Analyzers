@@ -1,12 +1,8 @@
 [![nuget](https://img.shields.io/nuget/vpre/SatorImaging.UnityAnalyzers)](https://www.nuget.org/packages/SatorImaging.UnityAnalyzers)
 &nbsp;
-[![DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/sator-imaging/Unity-Analyzers)
-
-[🇺🇸 English](./README.md)
-&nbsp; ❘ &nbsp;
-[🇯🇵 日本語版](./README.ja.md)
-&nbsp; ❘ &nbsp;
-[🇨🇳 简体中文版](./README.zh-CN.md)
+[![🇺🇸](https://img.shields.io/badge/🇺🇸-English-68f)](./README.md)
+[![🇯🇵](https://img.shields.io/badge/🇯🇵-日本語版-68f)](./README.ja.md)
+[![🇨🇳](https://img.shields.io/badge/🇨🇳-简体中文版-68f)](./README.zh-CN.md)
 
 
 
@@ -15,12 +11,16 @@
 Unity 開発時のコードを安全かつ正しく保つための Roslyn アナライザーです。
 
 - [非同期メソッドの解析](#非同期メソッドの解析)
-  - [SIUA001: 信頼できない Unity オブジェクトアクセス](#siua001-信頼できない-unity-オブジェクトアクセス)
-  - [SIUA002: 安全ブロック内での await](#siua002-安全ブロック内での-await)
+  - [SIUA001](#siua001-信頼できない-unity-オブジェクトアクセス): 信頼できない Unity オブジェクトアクセス
+  - [SIUA002](#siua002-安全ブロック内での-await): 安全ブロック内での await
 - [静的状態の解析](#静的状態の解析)
-  - [SIUA011: 静的状態がプレイモードを跨いで残っている](#siua011-静的状態がプレイモードを跨いで残っている)
-  - [SIUA012: RuntimeInitializeOnLoadMethod での状態リセット漏れ](#siua012-runtimeinitializeonloadmethod-での状態リセット漏れ)
-  - [SIUA013: ボディを持つ静的プロパティが不正な状態を返す可能性がある](#siua013-ボディを持つ静的プロパティが不正な状態を返す可能性がある)
+  - [SIUA011](#siua011-静的状態がプレイモードを跨いで残っている): 静的状態がプレイモードを跨いで残っている
+  - [SIUA012](#siua012-runtimeinitializeonloadmethod-での状態リセット漏れ): RuntimeInitializeOnLoadMethod での状態リセット漏れ
+  - [SIUA013](#siua013-ボディを持つ静的プロパティが不正な状態を返す可能性がある): ボディを持つ静的プロパティが不正な状態を返す可能性がある
+
+
+
+
 
 # 非同期メソッドの解析
 

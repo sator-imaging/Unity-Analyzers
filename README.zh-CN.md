@@ -1,12 +1,8 @@
 [![nuget](https://img.shields.io/nuget/vpre/SatorImaging.UnityAnalyzers)](https://www.nuget.org/packages/SatorImaging.UnityAnalyzers)
 &nbsp;
-[![DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/sator-imaging/Unity-Analyzers)
-
-[🇺🇸 English](./README.md)
-&nbsp; ❘ &nbsp;
-[🇯🇵 日本語版](./README.ja.md)
-&nbsp; ❘ &nbsp;
-[🇨🇳 简体中文版](./README.zh-CN.md)
+[![🇺🇸](https://img.shields.io/badge/🇺🇸-English-68f)](./README.md)
+[![🇯🇵](https://img.shields.io/badge/🇯🇵-日本語版-68f)](./README.ja.md)
+[![🇨🇳](https://img.shields.io/badge/🇨🇳-简体中文版-68f)](./README.zh-CN.md)
 
 
 
@@ -15,12 +11,16 @@
 用于 Unity 开发的 Roslyn 分析器，确保代码安全且正确。
 
 - [异步方法分析](#异步方法分析)
-  - [SIUA001: 不可靠的 Unity 对象访问](#siua001-不可靠的-unity-对象访问)
-  - [SIUA002: 安全块内的 await](#siua002-安全块内的-await)
+  - [SIUA001](#siua001-不可靠的-unity-对象访问): 不可靠的 Unity 对象访问
+  - [SIUA002](#siua002-安全块内的-await): 安全块内的 await
 - [静态状态分析](#静态状态分析)
-  - [SIUA011: 静态状态在播放模式之间存留](#siua011-静态状态在播放模式之间存留)
-  - [SIUA012: RuntimeInitializeOnLoadMethod 中缺少状态重置](#siua012-runtimeinitializeonloadmethod-中缺少状态重置)
-  - [SIUA013: 带有主体的静态属性可能返回无效的静态状态](#siua013-带有主体的静态属性可能返回无效的静态状态)
+  - [SIUA011](#siua011-静态状态在播放模式之间存留): 静态状态在播放模式之间存留
+  - [SIUA012](#siua012-runtimeinitializeonloadmethod-中缺少状态重置): RuntimeInitializeOnLoadMethod 中缺少状态重置
+  - [SIUA013](#siua013-带有主体的静态属性可能返回无效的静态状态): 带有主体的静态属性可能返回无效的静态状态
+
+
+
+
 
 # 异步方法分析
 
