@@ -99,11 +99,6 @@ namespace UnityAnalyzers
                 return method.MethodKind is not (MethodKind.PropertyGet or MethodKind.PropertySet or MethodKind.EventAdd or MethodKind.EventRemove);
             }
 
-            if (member is IEventSymbol @event)
-            {
-                return IsAutoImplemented(@event);
-            }
-
             return true;
         }
 

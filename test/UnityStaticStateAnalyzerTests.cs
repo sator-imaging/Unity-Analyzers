@@ -460,6 +460,9 @@ public class TestClass
             var expected1 = new DiagnosticResult("SIUA014", DiagnosticSeverity.Warning)
                 .WithLocation(1)
                 .WithArguments("OnSomething");
+            var expected2 = new DiagnosticResult("SIUA011", DiagnosticSeverity.Error)
+                .WithLocation(1)
+                .WithArguments("event", "OnSomething");
 
             var test = new CSharpAnalyzerTest<UnityStaticStateAnalyzer, DefaultVerifier>
             {
@@ -468,6 +471,7 @@ public class TestClass
 
             test.ExpectedDiagnostics.Add(expected0);
             test.ExpectedDiagnostics.Add(expected1);
+            test.ExpectedDiagnostics.Add(expected2);
             await test.RunAsync();
         }
 
@@ -480,17 +484,20 @@ using UnityEngine;
 public class TestClass
 {
     private static Action _onSomething;
-    public static event Action {|#0:OnSomething|} { add { _onSomething += value; } remove { _onSomething -= value; } }
+    public static event Action {|#1:OnSomething|} { add { _onSomething += value; } remove { _onSomething -= value; } }
 
     [RuntimeInitializeOnLoadMethod]
-    static void Reset()
+    static void {|#0:Reset|}()
     {
         _onSomething = null;
     }
 }
 ";
-            var expected = new DiagnosticResult("SIUA014", DiagnosticSeverity.Warning)
+            var expected0 = new DiagnosticResult("SIUA012", DiagnosticSeverity.Error)
                 .WithLocation(0)
+                .WithArguments("event", "OnSomething");
+            var expected1 = new DiagnosticResult("SIUA014", DiagnosticSeverity.Warning)
+                .WithLocation(1)
                 .WithArguments("OnSomething");
 
             var test = new CSharpAnalyzerTest<UnityStaticStateAnalyzer, DefaultVerifier>
@@ -498,7 +505,8 @@ public class TestClass
                 TestState = { Sources = { testCode, UnityEngineSource } },
             };
 
-            test.ExpectedDiagnostics.Add(expected);
+            test.ExpectedDiagnostics.Add(expected0);
+            test.ExpectedDiagnostics.Add(expected1);
             await test.RunAsync();
         }
 
