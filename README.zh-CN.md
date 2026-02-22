@@ -13,6 +13,8 @@
 - [异步方法分析](#异步方法分析)
   - [SIUA001](#siua001-不可靠的-unity-对象访问): 不可靠的 Unity 对象访问
   - [SIUA002](#siua002-安全块内的-await): 安全块内的 await
+- [异步调用分析](#异步调用分析)
+  - [SIUA021](#siua021-检测到异步调用): 检测到异步调用
 - [静态状态分析](#静态状态分析)
   - [SIUA011](#siua011-静态状态在播放模式之间存留): 静态状态在播放模式之间存留
   - [SIUA012](#siua012-runtimeinitializeonloadmethod-中缺少状态重置): RuntimeInitializeOnLoadMethod 中缺少状态重置
@@ -200,6 +202,52 @@ else
 
 await DoFurtherAsync(); // OK
 ```
+
+# 异步调用分析
+
+`AsyncInvocationAnalyzer` 用于检测未被显式追踪的异步执行来源。
+
+## `SIUA021`: 检测到异步调用
+
+**严重性: Error**
+
+此规则会对以下代码报错：
+- 调用返回 `Task`、`Task<T>`、`ValueTask` 或 `ValueTask<T>` 的方法（直接 `await` 的调用除外）(e.g. `AsyncMethod();`)。
+- 创建或赋值为 `async` / 返回 task-like 的匿名函数 (e.g. `Action a = async () => await Task.Delay(1);`, `Func<Task> f = () => Task.CompletedTask;`)。
+- 将返回 task-like 的方法组赋给委托或事件处理器 (e.g. `eventHandler += TaskReturningMethod;`, `handler = TaskReturningMethod;`)。
+- 对返回 task-like 的方法或受监视 API 类型进行方法组引用 (e.g. `var m = TaskReturningMethod;`)。
+- 访问受监视 API 类型的字段/属性/事件 (e.g. `var p = synchronizationContext.Post;`, `var e = timer.Elapsed;`)。
+- 创建受监视 API 类型的对象 (e.g. `new System.Threading.Timer(_ => { });`)。
+- 调用受监视 API 类型的方法 (e.g. `Task.Run(() => { });`, `ThreadPool.QueueUserWorkItem(_ => { });`, `Parallel.For(0, 10, _ => { });`)。
+- 受监视的线程/任务 API：
+  - `System.Threading.Tasks.Task`
+  - `System.Threading.Thread`
+  - `System.Threading.ThreadPool`
+  - `System.Threading.Tasks.Parallel`
+  - `System.Threading.SynchronizationContext`
+  - `System.Threading.Timer`
+  - `System.Threading.PeriodicTimer`
+  - `System.Timers.Timer`
+  - `System.Threading.Tasks.TaskCompletionSource`
+  - `System.Threading.Tasks.TaskCompletionSource<T>`
+
+## Promise 类型名自定义
+
+你可以通过 `.editorconfig` 自定义 Promise 例外类型名：
+
+```ini
+[*.cs]
+unity_analyzers_promise_type_name = MyCustomPromise # Default: Promise
+```
+
+请使用精确键名 `unity_analyzers_promise_type_name`（`analyzers` 为复数）。
+
+该值在分析器启动时只加载一次，随后会被缓存（修改后需要重启/重新加载才会生效）。
+
+## 限制: `async void`
+
+`async void` 没有可供调用方持有的 awaitable 句柄（`Task`/`ValueTask`），调用方无法可靠地追踪其完成与异常传播。  
+因此，在调用追踪模式下，`async void` 流程在技术上无法被完整追踪。
 
 # 静态状态分析
 

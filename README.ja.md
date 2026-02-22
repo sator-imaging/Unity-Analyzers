@@ -13,6 +13,8 @@ Unity 開発時のコードを安全かつ正しく保つための Roslyn アナ
 - [非同期メソッドの解析](#非同期メソッドの解析)
   - [SIUA001](#siua001-信頼できない-unity-オブジェクトアクセス): 信頼できない Unity オブジェクトアクセス
   - [SIUA002](#siua002-安全ブロック内での-await): 安全ブロック内での await
+- [非同期呼び出しの解析](#非同期呼び出しの解析)
+  - [SIUA021](#siua021-非同期呼び出しを検出): 非同期呼び出しを検出
 - [静的状態の解析](#静的状態の解析)
   - [SIUA011](#siua011-静的状態がプレイモードを跨いで残っている): 静的状態がプレイモードを跨いで残っている
   - [SIUA012](#siua012-runtimeinitializeonloadmethod-での状態リセット漏れ): RuntimeInitializeOnLoadMethod での状態リセット漏れ
@@ -200,6 +202,52 @@ else
 
 await DoFurtherAsync(); // OK
 ```
+
+# 非同期呼び出しの解析
+
+`AsyncInvocationAnalyzer` は、明示的に追跡されていない非同期実行の起点を検出します。
+
+## `SIUA021`: 非同期呼び出しを検出
+
+**重大度: Error**
+
+このルールは、次のコードに対してエラーを報告します:
+- `Task`、`Task<T>`、`ValueTask`、`ValueTask<T>` を返すメソッド呼び出し（直接 `await` している場合を除く）(e.g. `AsyncMethod();`)。
+- `async` である、または task-like を返す匿名関数の作成・代入 (e.g. `Action a = async () => await Task.Delay(1);`, `Func<Task> f = () => Task.CompletedTask;`)。
+- task-like を返すメソッドグループのデリゲート/イベントハンドラー代入 (e.g. `eventHandler += TaskReturningMethod;`, `handler = TaskReturningMethod;`)。
+- task-like 戻り値メソッド、または監視対象 API 型へのメソッドグループ参照 (e.g. `var m = TaskReturningMethod;`)。
+- 監視対象 API 型のフィールド/プロパティ/イベント参照 (e.g. `var p = synchronizationContext.Post;`, `var e = timer.Elapsed;`)。
+- 監視対象 API 型のオブジェクト生成 (e.g. `new System.Threading.Timer(_ => { });`)。
+- 監視対象 API 型へのメソッド呼び出し (e.g. `Task.Run(() => { });`, `ThreadPool.QueueUserWorkItem(_ => { });`, `Parallel.For(0, 10, _ => { });`)。
+- 監視対象のスレッド/タスク API:
+  - `System.Threading.Tasks.Task`
+  - `System.Threading.Thread`
+  - `System.Threading.ThreadPool`
+  - `System.Threading.Tasks.Parallel`
+  - `System.Threading.SynchronizationContext`
+  - `System.Threading.Timer`
+  - `System.Threading.PeriodicTimer`
+  - `System.Timers.Timer`
+  - `System.Threading.Tasks.TaskCompletionSource`
+  - `System.Threading.Tasks.TaskCompletionSource<T>`
+
+## Promise 型名のカスタマイズ
+
+`.editorconfig` で Promise 例外型の名前をカスタマイズできます:
+
+```ini
+[*.cs]
+unity_analyzers_promise_type_name = MyCustomPromise # Default: Promise
+```
+
+キー名は `unity_analyzers_promise_type_name`（`analyzers` は複数形）を正確に使用してください。
+
+この値はアナライザー起動時に一度だけ読み込まれ、その後キャッシュされます（変更を反映するには再起動/再読み込みが必要です）。
+
+## 制限: `async void`
+
+`async void` は呼び出し元が保持できる await 可能ハンドル（`Task`/`ValueTask`）を持たないため、呼び出し地点から完了や例外を信頼して追跡できません。  
+そのため、呼び出し追跡パターンでは `async void` フローを完全には追跡できません。
 
 # 静的状態の解析
 
