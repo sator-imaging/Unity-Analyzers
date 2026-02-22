@@ -415,5 +415,31 @@ public class TestClass
 
             await test.RunAsync();
         }
+
+        [Fact]
+        public async Task TestPropertyWithBodyAndResetMethod()
+        {
+            var testCode = @"
+using UnityEngine;
+public class TestClass
+{
+    public static int {|#0:PropertyWithBody|} => 0;
+
+    [RuntimeInitializeOnLoadMethod]
+    static void Reset() { }
+}
+";
+            var expected0 = new DiagnosticResult("SIUA013", DiagnosticSeverity.Warning)
+                .WithLocation(0)
+                .WithArguments("PropertyWithBody");
+
+            var test = new CSharpAnalyzerTest<UnityStaticStateAnalyzer, DefaultVerifier>
+            {
+                TestState = { Sources = { testCode, UnityEngineSource } },
+            };
+
+            test.ExpectedDiagnostics.Add(expected0);
+            await test.RunAsync();
+        }
     }
 }
