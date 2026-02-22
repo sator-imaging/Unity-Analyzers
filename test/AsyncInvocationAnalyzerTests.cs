@@ -198,12 +198,15 @@ public class C
 
             var test = CreateTest(source);
 
-            // Promise/custom Exec calls are not targets here; only helper Task property reference is detected.
+            // Promise Exec calls are exception targets; CustomPromise is not (default is Promise).
+            // Helper Task property reference is also detected.
             test.ExpectedDiagnostics.Add(new DiagnosticResult("SIUA021", DiagnosticSeverity.Error).WithLocation(0));
+            test.ExpectedDiagnostics.Add(new DiagnosticResult("SIUA021", DiagnosticSeverity.Error).WithLocation(1));
 
             await test.RunAsync();
         }
 
+        // TODO: Re-enable when the test host/workspace supports AnalyzerConfigFiles.
         [Fact(Skip = "AnalyzerConfigFiles is not supported by the current test host/workspace.")]
         public async Task AllowsConfiguredPromiseException()
         {
