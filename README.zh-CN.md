@@ -19,6 +19,7 @@
   - [SIUA011](#siua011-静态状态在播放模式之间存留): 静态状态在播放模式之间存留
   - [SIUA012](#siua012-runtimeinitializeonloadmethod-中缺少状态重置): RuntimeInitializeOnLoadMethod 中缺少状态重置
   - [SIUA013](#siua013-带有主体的静态属性可能返回无效的静态状态): 带有主体的静态属性可能返回无效的静态状态
+  - [SIUA014](#siua014-带有主体的静态事件): 带有主体的静态事件
 
 
 
@@ -342,6 +343,32 @@ public class MyService
 public class MyService
 {
     public static int Counter { get; } = 123;
+}
+```
+
+## `SIUA014`: 带有主体的静态事件
+
+**严重性: Error**
+
+不允许带有自定义 `add` 或 `remove` 主体的静态事件。分析器只能可靠地追踪和重置自动实现的静态事件。
+
+**规则:**
+静态事件必须是自动实现的。（例如 `public static event Action OnSomething;`）
+
+**不安全模式:**
+```csharp
+public class MyService
+{
+    // Error: SIUA014
+    public static event Action OnSomething { add { ... } remove { ... } }
+}
+```
+
+**安全模式:**
+```csharp
+public class MyService
+{
+    public static event Action OnSomething;
 }
 ```
 

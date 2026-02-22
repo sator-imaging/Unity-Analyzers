@@ -451,20 +451,23 @@ using UnityEngine;
 public class TestClass
 {
     private static Action {|#0:_onSomething|};
-    public static event Action OnSomething { add { _onSomething += value; } remove { _onSomething -= value; } }
+    public static event Action {|#1:OnSomething|} { add { _onSomething += value; } remove { _onSomething -= value; } }
 }
 ";
-            var expected = new DiagnosticResult("SIUA011", DiagnosticSeverity.Error)
+            var expected0 = new DiagnosticResult("SIUA011", DiagnosticSeverity.Error)
                 .WithLocation(0)
                 .WithArguments("field", "_onSomething");
-            // OnSomething should NOT trigger SIUA011 because it has bodies.
+            var expected1 = new DiagnosticResult("SIUA014", DiagnosticSeverity.Error)
+                .WithLocation(1)
+                .WithArguments("OnSomething");
 
             var test = new CSharpAnalyzerTest<UnityStaticStateAnalyzer, DefaultVerifier>
             {
                 TestState = { Sources = { testCode, UnityEngineSource } },
             };
 
-            test.ExpectedDiagnostics.Add(expected);
+            test.ExpectedDiagnostics.Add(expected0);
+            test.ExpectedDiagnostics.Add(expected1);
             await test.RunAsync();
         }
 
@@ -477,7 +480,7 @@ using UnityEngine;
 public class TestClass
 {
     private static Action _onSomething;
-    public static event Action OnSomething { add { _onSomething += value; } remove { _onSomething -= value; } }
+    public static event Action {|#0:OnSomething|} { add { _onSomething += value; } remove { _onSomething -= value; } }
 
     [RuntimeInitializeOnLoadMethod]
     static void Reset()
@@ -486,12 +489,16 @@ public class TestClass
     }
 }
 ";
+            var expected = new DiagnosticResult("SIUA014", DiagnosticSeverity.Error)
+                .WithLocation(0)
+                .WithArguments("OnSomething");
+
             var test = new CSharpAnalyzerTest<UnityStaticStateAnalyzer, DefaultVerifier>
             {
                 TestState = { Sources = { testCode, UnityEngineSource } },
             };
 
-            // Should have no diagnostics. OnSomething is ignored, _onSomething is reset.
+            test.ExpectedDiagnostics.Add(expected);
             await test.RunAsync();
         }
 

@@ -18,7 +18,8 @@ namespace UnityAnalyzers
             ImmutableArray.Create(
                 SR.StaticStateSurvivesAcrossPlayMode,
                 SR.MissingStateResetInRuntimeInitializeOnLoadMethod,
-                SR.StaticPropertyWithBodyMayReturnInvalidState);
+                SR.StaticPropertyWithBodyMayReturnInvalidState,
+                SR.StaticEventWithBodyIsNotAllowed);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -57,6 +58,17 @@ namespace UnityAnalyzers
                             SR.StaticPropertyWithBodyMayReturnInvalidState,
                             property.Locations[0],
                             property.Name));
+                    }
+                }
+
+                if (member is IEventSymbol @event && @event.IsStatic && !@event.IsImplicitlyDeclared)
+                {
+                    if (!IsAutoImplemented(@event))
+                    {
+                        context.ReportDiagnostic(Diagnostic.Create(
+                            SR.StaticEventWithBodyIsNotAllowed,
+                            @event.Locations[0],
+                            @event.Name));
                     }
                 }
             }
