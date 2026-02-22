@@ -441,5 +441,81 @@ public class TestClass
             test.ExpectedDiagnostics.Add(expected0);
             await test.RunAsync();
         }
+
+        [Fact]
+        public async Task TestStaticEventWithBody()
+        {
+            var testCode = @"
+using System;
+using UnityEngine;
+public class TestClass
+{
+    private static Action {|#0:_onSomething|};
+    public static event Action OnSomething { add { _onSomething += value; } remove { _onSomething -= value; } }
+}
+";
+            var expected = new DiagnosticResult("SIUA011", DiagnosticSeverity.Error)
+                .WithLocation(0)
+                .WithArguments("field", "_onSomething");
+            // OnSomething should NOT trigger SIUA011 because it has bodies.
+
+            var test = new CSharpAnalyzerTest<UnityStaticStateAnalyzer, DefaultVerifier>
+            {
+                TestState = { Sources = { testCode, UnityEngineSource } },
+            };
+
+            test.ExpectedDiagnostics.Add(expected);
+            await test.RunAsync();
+        }
+
+        [Fact]
+        public async Task TestStaticEventWithBodyAndResetMethod()
+        {
+            var testCode = @"
+using System;
+using UnityEngine;
+public class TestClass
+{
+    private static Action _onSomething;
+    public static event Action OnSomething { add { _onSomething += value; } remove { _onSomething -= value; } }
+
+    [RuntimeInitializeOnLoadMethod]
+    static void Reset()
+    {
+        _onSomething = null;
+    }
+}
+";
+            var test = new CSharpAnalyzerTest<UnityStaticStateAnalyzer, DefaultVerifier>
+            {
+                TestState = { Sources = { testCode, UnityEngineSource } },
+            };
+
+            // Should have no diagnostics. OnSomething is ignored, _onSomething is reset.
+            await test.RunAsync();
+        }
+
+        [Fact]
+        public async Task TestStaticEventAutoImplementedStillTriggers()
+        {
+            var testCode = @"
+using System;
+public class TestClass
+{
+    public static event Action {|#0:OnSomething|};
+}
+";
+            var expected = new DiagnosticResult("SIUA011", DiagnosticSeverity.Error)
+                .WithLocation(0)
+                .WithArguments("event", "OnSomething");
+
+            var test = new CSharpAnalyzerTest<UnityStaticStateAnalyzer, DefaultVerifier>
+            {
+                TestState = { Sources = { testCode, UnityEngineSource } },
+            };
+
+            test.ExpectedDiagnostics.Add(expected);
+            await test.RunAsync();
+        }
     }
 }
