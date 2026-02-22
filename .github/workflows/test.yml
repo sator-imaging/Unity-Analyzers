@@ -5,8 +5,26 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  workflow_call:
   workflow_dispatch:
 
 jobs:
+
   test:
-    uses: ./.github/workflows/__test.yml
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        configuration: [Debug, Release]
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 10.x.x
+
+    - name: Test
+      run: |
+        dotnet build ./src -c ${{ matrix.configuration }}
+
+        dotnet test -c ${{ matrix.configuration }}

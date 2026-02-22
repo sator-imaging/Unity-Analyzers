@@ -8,7 +8,7 @@ on:
 jobs:
 
   test:
-    uses: ./.github/workflows/__test.yml
+    uses: ./.github/workflows/test.yml
 
   publish:
     needs: test

@@ -1,5 +1,11 @@
 <Project>
 
+  <!-- Don't load parent props as it references built package of this project.
+  <Import Project="$(MSBuildThisFileDirectory)../Directory.Build.props"
+          Condition=" Exists('$(MSBuildThisFileDirectory)../Directory.Build.props') "
+  />
+  -->
+
   <PropertyGroup Condition=" '$(Configuration)'=='Release' ">
     <DebugType>none</DebugType>
   </PropertyGroup>
