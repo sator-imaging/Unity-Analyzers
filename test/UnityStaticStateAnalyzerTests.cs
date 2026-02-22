@@ -457,7 +457,7 @@ public class TestClass
             var expected0 = new DiagnosticResult("SIUA011", DiagnosticSeverity.Error)
                 .WithLocation(0)
                 .WithArguments("field", "_onSomething");
-            var expected1 = new DiagnosticResult("SIUA014", DiagnosticSeverity.Error)
+            var expected1 = new DiagnosticResult("SIUA014", DiagnosticSeverity.Warning)
                 .WithLocation(1)
                 .WithArguments("OnSomething");
 
@@ -489,7 +489,7 @@ public class TestClass
     }
 }
 ";
-            var expected = new DiagnosticResult("SIUA014", DiagnosticSeverity.Error)
+            var expected = new DiagnosticResult("SIUA014", DiagnosticSeverity.Warning)
                 .WithLocation(0)
                 .WithArguments("OnSomething");
 

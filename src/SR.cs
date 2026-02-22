@@ -62,7 +62,7 @@ namespace UnityAnalyzers
             title: "Static event with body",
             messageFormat: "Static event '{0}' with body is not allowed. Consider using an auto-implemented event instead. (e.g. `static event Action Event;`)",
             category: Category,
-            defaultSeverity: DiagnosticSeverity.Error,
+            defaultSeverity: DiagnosticSeverity.Warning,
             isEnabledByDefault: true
         );
 

@@ -348,7 +348,7 @@ public class MyService
 
 ## `SIUA014`: 带有主体的静态事件
 
-**严重性: Error**
+**严重性: Warning**
 
 不允许带有自定义 `add` 或 `remove` 主体的静态事件。分析器只能可靠地追踪和重置自动实现的静态事件。
 

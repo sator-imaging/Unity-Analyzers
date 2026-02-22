@@ -348,7 +348,7 @@ public class MyService
 
 ## `SIUA014`: Static event with body
 
-**Severity: Error**
+**Severity: Warning**
 
 Static events with a custom `add` or `remove` body are not allowed. Only auto-implemented static events can be reliably tracked and reset by the analyzer.
 
