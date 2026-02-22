@@ -2,6 +2,7 @@
 // https://github.com/sator-imaging/Unity-Analyzers
 
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using System.Collections.Generic;
@@ -14,7 +15,10 @@ namespace UnityAnalyzers
     public sealed class UnityStaticStateAnalyzer : DiagnosticAnalyzer
     {
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-            ImmutableArray.Create(SR.StaticStateSurvivesAcrossPlayMode, SR.MissingStateResetInRuntimeInitializeOnLoadMethod);
+            ImmutableArray.Create(
+                SR.StaticStateSurvivesAcrossPlayMode,
+                SR.MissingStateResetInRuntimeInitializeOnLoadMethod,
+                SR.StaticPropertyWithBodyMayReturnInvalidState);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -44,6 +48,17 @@ namespace UnityAnalyzers
                         member.Locations[0],
                         GetMemberTypeDisplayName(member),
                         member.Name));
+                }
+
+                if (member is IPropertySymbol property && property.IsStatic && !property.IsImplicitlyDeclared)
+                {
+                    if (property.IsReadOnly && !IsAutoImplemented(property))
+                    {
+                        context.ReportDiagnostic(Diagnostic.Create(
+                            SR.StaticPropertyWithBodyMayReturnInvalidState,
+                            property.Locations[0],
+                            property.Name));
+                    }
                 }
             }
         }
@@ -82,6 +97,26 @@ namespace UnityAnalyzers
             if (type.IsReferenceType) return false;
 
             return type.IsReadOnly || type.TypeKind == TypeKind.Enum;
+        }
+
+        private static bool IsAutoImplemented(IPropertySymbol property)
+        {
+            foreach (var syntaxRef in property.DeclaringSyntaxReferences)
+            {
+                if (syntaxRef.GetSyntax() is PropertyDeclarationSyntax propertyDeclaration)
+                {
+                    if (propertyDeclaration.ExpressionBody != null) return false;
+                    if (propertyDeclaration.AccessorList == null) return false;
+
+                    foreach (var accessor in propertyDeclaration.AccessorList.Accessors)
+                    {
+                        if (accessor.Body != null || accessor.ExpressionBody != null)
+                            return false;
+                    }
+                    return true;
+                }
+            }
+            return false;
         }
 
         private static string GetMemberTypeDisplayName(ISymbol member)

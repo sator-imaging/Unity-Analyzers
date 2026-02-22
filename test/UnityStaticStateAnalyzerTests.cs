@@ -170,9 +170,9 @@ public readonly struct MyReadOnlyStruct { public readonly int X; }
 
 public class TestClass
 {
-    public static MyEnum ReadonlyEnumProperty => MyEnum.A;
-    public static int ReadonlyIntProperty => 0;
-    public static MyReadOnlyStruct ReadonlyStructProperty => new MyReadOnlyStruct();
+    public static MyEnum {|#2:ReadonlyEnumProperty|} => MyEnum.A;
+    public static int {|#3:ReadonlyIntProperty|} => 0;
+    public static MyReadOnlyStruct {|#4:ReadonlyStructProperty|} => new MyReadOnlyStruct();
 
     public static int {|#0:MutableProperty|} { get; set; }
     public static System.Action {|#1:ReadonlyDelegateProperty|} => null;
@@ -184,6 +184,9 @@ public class TestClass
             var expected1 = new DiagnosticResult("SIUA011", DiagnosticSeverity.Error)
                 .WithLocation(1)
                 .WithArguments("property", "ReadonlyDelegateProperty");
+            var expected1_SIUA013 = new DiagnosticResult("SIUA013", DiagnosticSeverity.Warning)
+                .WithLocation(1)
+                .WithArguments("ReadonlyDelegateProperty");
 
             var test = new CSharpAnalyzerTest<UnityStaticStateAnalyzer, DefaultVerifier>
             {
@@ -192,6 +195,10 @@ public class TestClass
 
             test.ExpectedDiagnostics.Add(expected0);
             test.ExpectedDiagnostics.Add(expected1);
+            test.ExpectedDiagnostics.Add(expected1_SIUA013);
+            test.ExpectedDiagnostics.Add(new DiagnosticResult("SIUA013", DiagnosticSeverity.Warning).WithLocation(2).WithArguments("ReadonlyEnumProperty"));
+            test.ExpectedDiagnostics.Add(new DiagnosticResult("SIUA013", DiagnosticSeverity.Warning).WithLocation(3).WithArguments("ReadonlyIntProperty"));
+            test.ExpectedDiagnostics.Add(new DiagnosticResult("SIUA013", DiagnosticSeverity.Warning).WithLocation(4).WithArguments("ReadonlyStructProperty"));
             await test.RunAsync();
         }
 
@@ -370,6 +377,42 @@ public class TestClass2
             test.ExpectedDiagnostics.Add(expected0);
             test.ExpectedDiagnostics.Add(expected1);
             test.ExpectedDiagnostics.Add(expected2);
+            await test.RunAsync();
+        }
+
+        [Fact]
+        public async Task TestPropertyWithBodyReturnsImmutableType()
+        {
+            var testCode = @"
+public class TestClass
+{
+    public static int {|#0:PropertyWithExpressionBody|} => 0;
+    public static int {|#1:PropertyWithBlockBody|} { get { return 0; } }
+    public static int PropertyAuto { get; } = 0;
+    private const int _c = 0;
+    public static int {|#2:PropertyWithBypassAttempt|} { get => _c; }
+}
+";
+            var expected0 = new DiagnosticResult("SIUA013", DiagnosticSeverity.Warning)
+                .WithLocation(0)
+                .WithArguments("PropertyWithExpressionBody");
+            var expected1 = new DiagnosticResult("SIUA013", DiagnosticSeverity.Warning)
+                .WithLocation(1)
+                .WithArguments("PropertyWithBlockBody");
+            var expected2 = new DiagnosticResult("SIUA013", DiagnosticSeverity.Warning)
+                .WithLocation(2)
+                .WithArguments("PropertyWithBypassAttempt");
+
+            var test = new CSharpAnalyzerTest<UnityStaticStateAnalyzer, DefaultVerifier>
+            {
+                TestState = { Sources = { testCode, UnityEngineSource } },
+            };
+
+            test.ExpectedDiagnostics.Add(expected0);
+            test.ExpectedDiagnostics.Add(expected1);
+            test.ExpectedDiagnostics.Add(expected2);
+            // PropertyWithBypassAttempt returns int (immutable), so it should NOT trigger SIUA011
+
             await test.RunAsync();
         }
     }
