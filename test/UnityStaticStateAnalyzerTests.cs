@@ -375,5 +375,33 @@ public class TestClass2
             test.ExpectedDiagnostics.Add(expected2);
             await test.RunAsync();
         }
+
+        [Fact]
+        public async Task TestPropertyWithBodyReturnsImmutableType()
+        {
+            var testCode = @"
+public class TestClass
+{
+    public static int {|#0:PropertyWithExpressionBody|} => 0;
+    public static int {|#1:PropertyWithBlockBody|} { get { return 0; } }
+    public static int PropertyAuto { get; } = 0;
+}
+";
+            var expected0 = new DiagnosticResult("SIUA013", DiagnosticSeverity.Warning)
+                .WithLocation(0)
+                .WithArguments("PropertyWithExpressionBody");
+            var expected1 = new DiagnosticResult("SIUA013", DiagnosticSeverity.Warning)
+                .WithLocation(1)
+                .WithArguments("PropertyWithBlockBody");
+
+            var test = new CSharpAnalyzerTest<UnityStaticStateAnalyzer, DefaultVerifier>
+            {
+                TestState = { Sources = { testCode, UnityEngineSource } },
+            };
+
+            test.ExpectedDiagnostics.Add(expected0);
+            test.ExpectedDiagnostics.Add(expected1);
+            await test.RunAsync();
+        }
     }
 }
