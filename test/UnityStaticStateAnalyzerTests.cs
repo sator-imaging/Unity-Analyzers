@@ -181,9 +181,9 @@ public class TestClass
             var expected0 = new DiagnosticResult("SIUA011", DiagnosticSeverity.Error)
                 .WithLocation(0)
                 .WithArguments("property", "MutableProperty");
-            var expected1 = new DiagnosticResult("SIUA011", DiagnosticSeverity.Error)
+            var expected1 = new DiagnosticResult("SIUA013", DiagnosticSeverity.Warning)
                 .WithLocation(1)
-                .WithArguments("property", "ReadonlyDelegateProperty");
+                .WithArguments("ReadonlyDelegateProperty");
 
             var test = new CSharpAnalyzerTest<UnityStaticStateAnalyzer, DefaultVerifier>
             {

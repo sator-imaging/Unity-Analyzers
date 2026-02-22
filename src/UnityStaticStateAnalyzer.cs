@@ -50,15 +50,12 @@ namespace UnityAnalyzers
                 }
                 else if (member is IPropertySymbol property && property.IsStatic && !property.IsImplicitlyDeclared)
                 {
-                    if (property.IsReadOnly && IsImmutable(property.Type))
+                    if (property.IsReadOnly && !IsAutoImplemented(property))
                     {
-                        if (!IsAutoImplemented(property))
-                        {
-                            context.ReportDiagnostic(Diagnostic.Create(
-                                SR.StaticPropertyWithBodyMayReturnInvalidState,
-                                property.Locations[0],
-                                property.Name));
-                        }
+                        context.ReportDiagnostic(Diagnostic.Create(
+                            SR.StaticPropertyWithBodyMayReturnInvalidState,
+                            property.Locations[0],
+                            property.Name));
                     }
                 }
             }
@@ -81,6 +78,7 @@ namespace UnityAnalyzers
 
             if (member is IPropertySymbol property)
             {
+                if (property.IsReadOnly && !IsAutoImplemented(property)) return false;
                 return !(property.IsReadOnly && IsImmutable(property.Type));
             }
 
