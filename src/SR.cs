@@ -51,7 +51,7 @@ namespace UnityAnalyzers
         public static readonly DiagnosticDescriptor StaticPropertyWithBodyMayReturnInvalidState = new DiagnosticDescriptor(
             id: IdPrefix + "013",
             title: "Static property with body may return invalid static state",
-            messageFormat: "Static property '{0}' with customized getter body may return invalid static state when Domain Reloading is disabled. Consider using an auto-implemented property instead. (e.g. `static int Property { get; } = 0;`)",
+            messageFormat: "Static property '{0}' with getter body may return invalid static state when Domain Reloading is disabled. Consider using an auto-implemented property instead. (e.g. `static int Property { get; } = 0;`)",
             category: Category,
             defaultSeverity: DiagnosticSeverity.Warning,
             isEnabledByDefault: true
