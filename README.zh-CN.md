@@ -279,7 +279,6 @@ public class MyService
 
 **命中原因:**
 - 任何非自动实现的（具有主体或表达式主体的）静态只读属性。
-- 类中不包含带有 `[RuntimeInitializeOnLoadMethod]` 的静态方法。
 
 **不安全模式:**
 ```csharp

@@ -279,7 +279,6 @@ Consider using an auto-implemented property instead. (e.g. `static int Property 
 
 **Why it matches:**
 - Any static read-only property that is not auto-implemented (has a body or expression body).
-- The class does NOT contain a static method marked with `[RuntimeInitializeOnLoadMethod]`.
 
 **Unsafe Pattern:**
 ```csharp
