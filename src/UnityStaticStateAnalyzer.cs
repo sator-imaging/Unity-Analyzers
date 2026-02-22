@@ -2,6 +2,7 @@
 // https://github.com/sator-imaging/Unity-Analyzers
 
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using System.Collections.Generic;
@@ -100,9 +101,22 @@ namespace UnityAnalyzers
 
         private static bool IsAutoImplemented(IPropertySymbol property)
         {
-            return property.ContainingType.GetMembers()
-                .OfType<IFieldSymbol>()
-                .Any(f => SymbolEqualityComparer.Default.Equals(f.AssociatedSymbol, property));
+            foreach (var syntaxRef in property.DeclaringSyntaxReferences)
+            {
+                if (syntaxRef.GetSyntax() is PropertyDeclarationSyntax propertyDeclaration)
+                {
+                    if (propertyDeclaration.ExpressionBody != null) return false;
+                    if (propertyDeclaration.AccessorList == null) return false;
+
+                    foreach (var accessor in propertyDeclaration.AccessorList.Accessors)
+                    {
+                        if (accessor.Body != null || accessor.ExpressionBody != null)
+                            return false;
+                    }
+                    return true;
+                }
+            }
+            return false;
         }
 
         private static string GetMemberTypeDisplayName(ISymbol member)

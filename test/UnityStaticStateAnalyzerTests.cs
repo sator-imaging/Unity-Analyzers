@@ -389,6 +389,8 @@ public class TestClass
     public static int {|#0:PropertyWithExpressionBody|} => 0;
     public static int {|#1:PropertyWithBlockBody|} { get { return 0; } }
     public static int PropertyAuto { get; } = 0;
+    private const int _c = 0;
+    public static int {|#2:PropertyWithBypassAttempt|} { get => _c; }
 }
 ";
             var expected0 = new DiagnosticResult("SIUA013", DiagnosticSeverity.Warning)
@@ -397,6 +399,9 @@ public class TestClass
             var expected1 = new DiagnosticResult("SIUA013", DiagnosticSeverity.Warning)
                 .WithLocation(1)
                 .WithArguments("PropertyWithBlockBody");
+            var expected2 = new DiagnosticResult("SIUA013", DiagnosticSeverity.Warning)
+                .WithLocation(2)
+                .WithArguments("PropertyWithBypassAttempt");
 
             var test = new CSharpAnalyzerTest<UnityStaticStateAnalyzer, DefaultVerifier>
             {
@@ -405,6 +410,9 @@ public class TestClass
 
             test.ExpectedDiagnostics.Add(expected0);
             test.ExpectedDiagnostics.Add(expected1);
+            test.ExpectedDiagnostics.Add(expected2);
+            // PropertyWithBypassAttempt returns int (immutable), so it should NOT trigger SIUA011
+
             await test.RunAsync();
         }
     }
