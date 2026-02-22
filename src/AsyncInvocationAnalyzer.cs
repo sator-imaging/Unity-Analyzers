@@ -39,7 +39,8 @@ namespace UnityAnalyzers
         {
             var operation = (IInvocationOperation)context.Operation;
             var promiseTypeName = GetPromiseTypeName(context);
-            if (IsInsideAnonymousFunction(operation))
+            if (TryGetEnclosingAnonymousFunction(operation, out var anonymousFunction) &&
+                (anonymousFunction.Symbol?.IsAsync == true || IsTaskLike(anonymousFunction.Symbol?.ReturnType)))
             {
                 return;
             }
@@ -217,16 +218,18 @@ namespace UnityAnalyzers
             return configured!.Trim();
         }
 
-        private static bool IsInsideAnonymousFunction(IOperation operation)
+        private static bool TryGetEnclosingAnonymousFunction(IOperation operation, out IAnonymousFunctionOperation anonymousFunction)
         {
             for (IOperation? current = operation.Parent; current != null; current = current.Parent)
             {
                 if (current is IAnonymousFunctionOperation)
                 {
+                    anonymousFunction = (IAnonymousFunctionOperation)current;
                     return true;
                 }
             }
 
+            anonymousFunction = null!;
             return false;
         }
 
@@ -237,16 +240,14 @@ namespace UnityAnalyzers
                 return false;
             }
 
-            if (MatchesMetadataName(type, "System.Threading.Tasks.ValueTask") ||
-                MatchesMetadataName(type, "System.Threading.Tasks.ValueTask`1"))
+            if (MatchesType(type, "System.Threading.Tasks", "ValueTask"))
             {
                 return true;
             }
 
             for (var current = type as INamedTypeSymbol; current != null; current = current.BaseType)
             {
-                if (MatchesMetadataName(current, "System.Threading.Tasks.Task") ||
-                    MatchesMetadataName(current, "System.Threading.Tasks.Task`1"))
+                if (MatchesType(current, "System.Threading.Tasks", "Task"))
                 {
                     return true;
                 }
@@ -262,36 +263,52 @@ namespace UnityAnalyzers
                 return false;
             }
 
-            if (MatchesMetadataName(type, "System.Threading.Tasks.Task") ||
-                MatchesMetadataName(type, "System.Threading.Thread") ||
-                MatchesMetadataName(type, "System.Threading.ThreadPool") ||
-                MatchesMetadataName(type, "System.Threading.Tasks.Parallel") ||
-                MatchesMetadataName(type, "System.Threading.SynchronizationContext") ||
-                MatchesMetadataName(type, "System.Threading.Timer") ||
-                MatchesMetadataName(type, "System.Threading.PeriodicTimer") ||
-                MatchesMetadataName(type, "System.Timers.Timer"))
+            if (MatchesType(type, "System.Threading.Tasks", "Task") ||
+                MatchesType(type, "System.Threading", "Thread", 0) ||
+                MatchesType(type, "System.Threading", "ThreadPool", 0) ||
+                MatchesType(type, "System.Threading.Tasks", "Parallel", 0) ||
+                MatchesType(type, "System.Threading", "SynchronizationContext", 0) ||
+                MatchesType(type, "System.Threading", "Timer", 0) ||
+                MatchesType(type, "System.Threading", "PeriodicTimer", 0) ||
+                MatchesType(type, "System.Timers", "Timer", 0))
             {
                 return true;
             }
 
             if (type is INamedTypeSymbol named &&
                 named.ConstructedFrom != null &&
-                MatchesMetadataName(named.ConstructedFrom, "System.Threading.Tasks.TaskCompletionSource`1"))
+                MatchesType(named.ConstructedFrom, "System.Threading.Tasks", "TaskCompletionSource", 1))
             {
                 return true;
             }
 
-            return MatchesMetadataName(type, "System.Threading.Tasks.TaskCompletionSource");
+            return MatchesType(type, "System.Threading.Tasks", "TaskCompletionSource", 0);
         }
 
-        private static bool MatchesMetadataName(ITypeSymbol? type, string fullName)
+        private static bool MatchesType(ITypeSymbol? type, string namespaceName, string name, int? typeArgumentCount = null)
         {
-            if (type == null)
+            if (type is not INamedTypeSymbol namedType)
             {
                 return false;
             }
 
-            return string.Equals(type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat).Replace("global::", string.Empty), fullName, StringComparison.Ordinal);
+            if (!string.Equals(namedType.Name, name, StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            if (typeArgumentCount.HasValue && namedType.Arity != typeArgumentCount.Value)
+            {
+                return false;
+            }
+
+            return MatchesNamespace(namedType.ContainingNamespace, namespaceName);
+        }
+
+        private static bool MatchesNamespace(INamespaceSymbol? namespaceSymbol, string namespaceName)
+        {
+            var actual = namespaceSymbol?.ToDisplayString() ?? string.Empty;
+            return string.Equals(actual, namespaceName, StringComparison.Ordinal);
         }
     }
 }

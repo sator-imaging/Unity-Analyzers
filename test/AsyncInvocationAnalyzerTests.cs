@@ -190,7 +190,7 @@ public class C
     {
         E += promise.Exec(async () => await Task.Delay(1));
         E += promise.Exec(() => AsyncMethod());
-        E += {|#1:custom.Exec(() => AsyncMethod())|};
+        E += custom.Exec(() => {|#1:AsyncMethod()|});
         E2 += promise.Exec(async () => 0);
     }
 }
@@ -198,7 +198,8 @@ public class C
 
             var test = CreateTest(source);
 
-            // Promise Exec calls are exception targets; CustomPromise is not (default is Promise).
+            // Promise Exec calls are exception targets (default: Promise).
+            // CustomPromise is not excluded, so the Task-returning invocation inside its lambda is reported.
             // Helper Task property reference is also detected.
             test.ExpectedDiagnostics.Add(new DiagnosticResult("SIUA021", DiagnosticSeverity.Error).WithLocation(0));
             test.ExpectedDiagnostics.Add(new DiagnosticResult("SIUA021", DiagnosticSeverity.Error).WithLocation(1));
