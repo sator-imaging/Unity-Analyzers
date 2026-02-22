@@ -19,6 +19,7 @@ Unity 開発時のコードを安全かつ正しく保つための Roslyn アナ
   - [SIUA011](#siua011-静的状態がプレイモードを跨いで残っている): 静的状態がプレイモードを跨いで残っている
   - [SIUA012](#siua012-runtimeinitializeonloadmethod-での状態リセット漏れ): RuntimeInitializeOnLoadMethod での状態リセット漏れ
   - [SIUA013](#siua013-ボディを持つ静的プロパティが不正な状態を返す可能性がある): ボディを持つ静的プロパティが不正な状態を返す可能性がある
+  - [SIUA014](#siua014-ボディを持つ静的イベント): ボディを持つ静的イベント
 
 
 
@@ -342,6 +343,32 @@ public class MyService
 public class MyService
 {
     public static int Counter { get; } = 123;
+}
+```
+
+## `SIUA014`: ボディを持つ静的イベント
+
+**重大度: Warning**
+
+カスタムの `add` または `remove` ボディを持つ静的イベントは許可されません。自動実装された静的イベントのみが、アナライザーによって確実な追跡とリセットが可能です。
+
+**ルール:**
+静的イベントは自動実装されている必要があります。（例: `public static event Action OnSomething;`）
+
+**危険なパターン:**
+```csharp
+public class MyService
+{
+    // Error: SIUA014
+    public static event Action OnSomething { add { ... } remove { ... } }
+}
+```
+
+**安全なパターン:**
+```csharp
+public class MyService
+{
+    public static event Action OnSomething;
 }
 ```
 

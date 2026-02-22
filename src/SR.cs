@@ -57,6 +57,15 @@ namespace UnityAnalyzers
             isEnabledByDefault: true
         );
 
+        public static readonly DiagnosticDescriptor StaticEventWithBodyIsNotAllowed = new DiagnosticDescriptor(
+            id: IdPrefix + "014",
+            title: "Static event with body",
+            messageFormat: "Static event '{0}' with body is not allowed. Consider using an auto-implemented event instead. (e.g. `static event Action Event;`)",
+            category: Category,
+            defaultSeverity: DiagnosticSeverity.Warning,
+            isEnabledByDefault: true
+        );
+
         public static readonly DiagnosticDescriptor AsyncInvocationDetected = new DiagnosticDescriptor(
             id: IdPrefix + "021",
             title: "Async invocation detected",

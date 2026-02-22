@@ -19,6 +19,7 @@ Roslyn analyzers to ensure safe and correct code when developing with Unity.
   - [SIUA011](#siua011-static-state-survives-across-play-modes): Static state survives across play modes
   - [SIUA012](#siua012-missing-state-reset-in-runtimeinitializeonloadmethod): Missing state reset in RuntimeInitializeOnLoadMethod
   - [SIUA013](#siua013-static-property-with-body-may-return-invalid-static-state): Static property with body may return invalid static state
+  - [SIUA014](#siua014-static-event-with-body): Static event with body
 
 
 
@@ -342,6 +343,32 @@ public class MyService
 public class MyService
 {
     public static int Counter { get; } = 123;
+}
+```
+
+## `SIUA014`: Static event with body
+
+**Severity: Warning**
+
+Static events with a custom `add` or `remove` body are not allowed. Only auto-implemented static events can be reliably tracked and reset by the analyzer.
+
+**Rule:**
+Static events must be auto-implemented. (e.g. `public static event Action OnSomething;`)
+
+**Unsafe Pattern:**
+```csharp
+public class MyService
+{
+    // Error: SIUA014
+    public static event Action OnSomething { add { ... } remove { ... } }
+}
+```
+
+**Safe Pattern:**
+```csharp
+public class MyService
+{
+    public static event Action OnSomething;
 }
 ```
 

@@ -441,5 +441,96 @@ public class TestClass
             test.ExpectedDiagnostics.Add(expected0);
             await test.RunAsync();
         }
+
+        [Fact]
+        public async Task TestStaticEventWithBody()
+        {
+            var testCode = @"
+using System;
+using UnityEngine;
+public class TestClass
+{
+    private static Action {|#0:_onSomething|};
+    public static event Action {|#1:OnSomething|} { add { _onSomething += value; } remove { _onSomething -= value; } }
+}
+";
+            var expected0 = new DiagnosticResult("SIUA011", DiagnosticSeverity.Error)
+                .WithLocation(0)
+                .WithArguments("field", "_onSomething");
+            var expected1 = new DiagnosticResult("SIUA014", DiagnosticSeverity.Warning)
+                .WithLocation(1)
+                .WithArguments("OnSomething");
+            var expected2 = new DiagnosticResult("SIUA011", DiagnosticSeverity.Error)
+                .WithLocation(1)
+                .WithArguments("event", "OnSomething");
+
+            var test = new CSharpAnalyzerTest<UnityStaticStateAnalyzer, DefaultVerifier>
+            {
+                TestState = { Sources = { testCode, UnityEngineSource } },
+            };
+
+            test.ExpectedDiagnostics.Add(expected0);
+            test.ExpectedDiagnostics.Add(expected1);
+            test.ExpectedDiagnostics.Add(expected2);
+            await test.RunAsync();
+        }
+
+        [Fact]
+        public async Task TestStaticEventWithBodyAndResetMethod()
+        {
+            var testCode = @"
+using System;
+using UnityEngine;
+public class TestClass
+{
+    private static Action _onSomething;
+    public static event Action {|#1:OnSomething|} { add { _onSomething += value; } remove { _onSomething -= value; } }
+
+    [RuntimeInitializeOnLoadMethod]
+    static void {|#0:Reset|}()
+    {
+        _onSomething = null;
+    }
+}
+";
+            var expected0 = new DiagnosticResult("SIUA012", DiagnosticSeverity.Error)
+                .WithLocation(0)
+                .WithArguments("event", "OnSomething");
+            var expected1 = new DiagnosticResult("SIUA014", DiagnosticSeverity.Warning)
+                .WithLocation(1)
+                .WithArguments("OnSomething");
+
+            var test = new CSharpAnalyzerTest<UnityStaticStateAnalyzer, DefaultVerifier>
+            {
+                TestState = { Sources = { testCode, UnityEngineSource } },
+            };
+
+            test.ExpectedDiagnostics.Add(expected0);
+            test.ExpectedDiagnostics.Add(expected1);
+            await test.RunAsync();
+        }
+
+        [Fact]
+        public async Task TestStaticEventAutoImplementedStillTriggers()
+        {
+            var testCode = @"
+using System;
+public class TestClass
+{
+    public static event Action {|#0:OnSomething|};
+}
+";
+            var expected = new DiagnosticResult("SIUA011", DiagnosticSeverity.Error)
+                .WithLocation(0)
+                .WithArguments("event", "OnSomething");
+
+            var test = new CSharpAnalyzerTest<UnityStaticStateAnalyzer, DefaultVerifier>
+            {
+                TestState = { Sources = { testCode, UnityEngineSource } },
+            };
+
+            test.ExpectedDiagnostics.Add(expected);
+            await test.RunAsync();
+        }
     }
 }
