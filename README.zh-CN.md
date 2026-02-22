@@ -1,8 +1,8 @@
 [![nuget](https://img.shields.io/nuget/vpre/SatorImaging.UnityAnalyzers)](https://www.nuget.org/packages/SatorImaging.UnityAnalyzers)
 &nbsp;
 [![🇺🇸](https://img.shields.io/badge/🇺🇸-English-68f)](./README.md)
-[![🇯🇵](https://img.shields.io/badge/🇯🇵-日本語版-68f)](./README.ja.md)
-[![🇨🇳](https://img.shields.io/badge/🇨🇳-简体中文版-68f)](./README.zh-CN.md)
+[![🇯🇵](https://img.shields.io/badge/🇯🇵-日本語-68f)](./README.ja.md)
+[![🇨🇳](https://img.shields.io/badge/🇨🇳-简体中文-68f)](./README.zh-CN.md)
 
 
 
