@@ -170,9 +170,9 @@ public readonly struct MyReadOnlyStruct { public readonly int X; }
 
 public class TestClass
 {
-    public static MyEnum ReadonlyEnumProperty => MyEnum.A;
-    public static int ReadonlyIntProperty => 0;
-    public static MyReadOnlyStruct ReadonlyStructProperty => new MyReadOnlyStruct();
+    public static MyEnum {|#2:ReadonlyEnumProperty|} => MyEnum.A;
+    public static int {|#3:ReadonlyIntProperty|} => 0;
+    public static MyReadOnlyStruct {|#4:ReadonlyStructProperty|} => new MyReadOnlyStruct();
 
     public static int {|#0:MutableProperty|} { get; set; }
     public static System.Action {|#1:ReadonlyDelegateProperty|} => null;
@@ -192,6 +192,9 @@ public class TestClass
 
             test.ExpectedDiagnostics.Add(expected0);
             test.ExpectedDiagnostics.Add(expected1);
+            test.ExpectedDiagnostics.Add(new DiagnosticResult("SIUA013", DiagnosticSeverity.Warning).WithLocation(2).WithArguments("ReadonlyEnumProperty"));
+            test.ExpectedDiagnostics.Add(new DiagnosticResult("SIUA013", DiagnosticSeverity.Warning).WithLocation(3).WithArguments("ReadonlyIntProperty"));
+            test.ExpectedDiagnostics.Add(new DiagnosticResult("SIUA013", DiagnosticSeverity.Warning).WithLocation(4).WithArguments("ReadonlyStructProperty"));
             await test.RunAsync();
         }
 

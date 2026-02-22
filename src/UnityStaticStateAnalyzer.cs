@@ -14,7 +14,10 @@ namespace UnityAnalyzers
     public sealed class UnityStaticStateAnalyzer : DiagnosticAnalyzer
     {
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-            ImmutableArray.Create(SR.StaticStateSurvivesAcrossPlayMode, SR.MissingStateResetInRuntimeInitializeOnLoadMethod);
+            ImmutableArray.Create(
+                SR.StaticStateSurvivesAcrossPlayMode,
+                SR.MissingStateResetInRuntimeInitializeOnLoadMethod,
+                SR.StaticPropertyWithBodyMayReturnInvalidState);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -44,6 +47,19 @@ namespace UnityAnalyzers
                         member.Locations[0],
                         GetMemberTypeDisplayName(member),
                         member.Name));
+                }
+                else if (member is IPropertySymbol property && property.IsStatic && !property.IsImplicitlyDeclared)
+                {
+                    if (property.IsReadOnly && IsImmutable(property.Type))
+                    {
+                        if (!IsAutoImplemented(property))
+                        {
+                            context.ReportDiagnostic(Diagnostic.Create(
+                                SR.StaticPropertyWithBodyMayReturnInvalidState,
+                                property.Locations[0],
+                                property.Name));
+                        }
+                    }
                 }
             }
         }
@@ -82,6 +98,13 @@ namespace UnityAnalyzers
             if (type.IsReferenceType) return false;
 
             return type.IsReadOnly || type.TypeKind == TypeKind.Enum;
+        }
+
+        private static bool IsAutoImplemented(IPropertySymbol property)
+        {
+            return property.ContainingType.GetMembers()
+                .OfType<IFieldSymbol>()
+                .Any(f => SymbolEqualityComparer.Default.Equals(f.AssociatedSymbol, property));
         }
 
         private static string GetMemberTypeDisplayName(ISymbol member)
