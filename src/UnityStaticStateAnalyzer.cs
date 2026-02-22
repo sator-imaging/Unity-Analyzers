@@ -48,7 +48,8 @@ namespace UnityAnalyzers
                         GetMemberTypeDisplayName(member),
                         member.Name));
                 }
-                else if (member is IPropertySymbol property && property.IsStatic && !property.IsImplicitlyDeclared)
+
+                if (member is IPropertySymbol property && property.IsStatic && !property.IsImplicitlyDeclared)
                 {
                     if (property.IsReadOnly && !IsAutoImplemented(property))
                     {
@@ -78,7 +79,6 @@ namespace UnityAnalyzers
 
             if (member is IPropertySymbol property)
             {
-                if (property.IsReadOnly && !IsAutoImplemented(property)) return false;
                 return !(property.IsReadOnly && IsImmutable(property.Type));
             }
 
