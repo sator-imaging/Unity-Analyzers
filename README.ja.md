@@ -15,7 +15,12 @@
 Unity 開発時のコードを安全かつ正しく保つための Roslyn アナライザーです。
 
 - [非同期メソッドの解析](#非同期メソッドの解析)
+  - [SIUA001: 信頼できない Unity オブジェクトアクセス](#siua001-信頼できない-unity-オブジェクトアクセス)
+  - [SIUA002: 安全ブロック内での await](#siua002-安全ブロック内での-await)
 - [静的状態の解析](#静的状態の解析)
+  - [SIUA011: 静的状態がプレイモードを跨いで残っている](#siua011-静的状態がプレイモードを跨いで残っている)
+  - [SIUA012: RuntimeInitializeOnLoadMethod での状態リセット漏れ](#siua012-runtimeinitializeonloadmethod-での状態リセット漏れ)
+  - [SIUA013: ボディを持つ静的プロパティが不正な状態を返す可能性がある](#siua013-ボディを持つ静的プロパティが不正な状態を返す可能性がある)
 
 # 非同期メソッドの解析
 
@@ -260,6 +265,36 @@ public class MyService
         Counter = 0;
         // Status がリセットされていない！ -> Error: SIUA012 が 'Init' に報告される
     }
+}
+```
+
+## `SIUA013`: ボディを持つ静的プロパティが不正な状態を返す可能性がある
+
+**重大度: Warning**
+
+ゲッターボディを持つ（自動実装されていない）静的プロパティは、ドメインリロードが無効になっている場合に、不正な、あるいは古い静的状態を返す可能性があります。
+
+**ルール:**
+自動実装プロパティの使用を検討するか（例: `static int Property { get; } = 0;`）、返される値が正しく管理されていることを確認してください。
+
+**マッチ理由:**
+- 自動実装されていない（ボディまたは式形式のボディを持つ）任意の静的読み取り専用プロパティ。
+- クラス内に `[RuntimeInitializeOnLoadMethod]` が付いた静的メソッドが存在しない。
+
+**危険なパターン:**
+```csharp
+public class MyService
+{
+    // Warning: SIUA013
+    public static int Counter => 123;
+}
+```
+
+**安全なパターン:**
+```csharp
+public class MyService
+{
+    public static int Counter { get; } = 123;
 }
 ```
 

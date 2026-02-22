@@ -15,7 +15,12 @@
 Roslyn analyzers to ensure safe and correct code when developing with Unity.
 
 - [Async Method Analysis](#async-method-analysis)
+  - [SIUA001: Unreliable Unity object access](#siua001-unreliable-unity-object-access)
+  - [SIUA002: Await in safe block](#siua002-await-in-safe-block)
 - [Static State Analysis](#static-state-analysis)
+  - [SIUA011: Static state survives across play modes](#siua011-static-state-survives-across-play-modes)
+  - [SIUA012: Missing state reset in RuntimeInitializeOnLoadMethod](#siua012-missing-state-reset-in-runtimeinitializeonloadmethod)
+  - [SIUA013: Static property with body may return invalid static state](#siua013-static-property-with-body-may-return-invalid-static-state)
 
 # Async Method Analysis
 
@@ -260,6 +265,36 @@ public class MyService
         Counter = 0;
         // Status is NOT reset! -> Error: SIUA012 reported on 'Init'
     }
+}
+```
+
+## `SIUA013`: Static property with body may return invalid static state
+
+**Severity: Warning**
+
+Static properties with a getter body (not auto-implemented) may return invalid or stale static state when Domain Reloading is disabled.
+
+**Rule:**
+Consider using an auto-implemented property instead. (e.g. `static int Property { get; } = 0;`)
+
+**Why it matches:**
+- Any static read-only property that is not auto-implemented (has a body or expression body).
+- The class does NOT contain a static method marked with `[RuntimeInitializeOnLoadMethod]`.
+
+**Unsafe Pattern:**
+```csharp
+public class MyService
+{
+    // Warning: SIUA013
+    public static int Counter => 123;
+}
+```
+
+**Safe Pattern:**
+```csharp
+public class MyService
+{
+    public static int Counter { get; } = 123;
 }
 ```
 
