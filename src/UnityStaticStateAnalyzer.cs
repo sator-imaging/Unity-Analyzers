@@ -37,11 +37,10 @@ namespace UnityAnalyzers
             var members = namedType.GetMembers();
 
             bool hasResetMethod = members.Any(m => m.IsStatic && m is IMethodSymbol method && IsResetMethod(method));
-            if (hasResetMethod) return;
 
             foreach (var member in members)
             {
-                if (IsTargetStaticMember(member))
+                if (!hasResetMethod && IsTargetStaticMember(member))
                 {
                     context.ReportDiagnostic(Diagnostic.Create(
                         SR.StaticStateSurvivesAcrossPlayMode,

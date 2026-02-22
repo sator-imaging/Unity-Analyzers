@@ -279,7 +279,6 @@ public class MyService
 
 **マッチ理由:**
 - 自動実装されていない（ボディまたは式形式のボディを持つ）任意の静的読み取り専用プロパティ。
-- クラス内に `[RuntimeInitializeOnLoadMethod]` が付いた静的メソッドが存在しない。
 
 **危険なパターン:**
 ```csharp
