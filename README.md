@@ -17,7 +17,7 @@ Roslyn analyzers to ensure safe and correct code when developing with Unity.
   - [SIUA021](#siua021-async-invocation-detected): Async invocation detected
 - [Static State Analysis](#static-state-analysis)
   - [SIUA011](#siua011-static-state-survives-across-play-modes): Static state survives across play modes
-  - [SIUA012](#siua012-missing-state-reset-in-runtimeinitializeonloadmethod): Missing state reset in RuntimeInitializeOnLoadMethod
+  - [SIUA012](#siua012-missing-state-reset-in-runtimeinitializeonloadmethod): Missing state reset in `RuntimeInitializeOnLoadMethod`
   - [SIUA013](#siua013-static-property-with-body-may-return-invalid-static-state): Static property with body may return invalid static state
 
 
@@ -212,13 +212,20 @@ await DoFurtherAsync(); // OK
 **Severity: Error**
 
 This rule reports an error for:
-- Calling a method that returns `Task`, `Task<T>`, `ValueTask`, or `ValueTask<T>` except when directly `await`-ed (e.g. `AsyncMethod();`).
-- Creating or assigning anonymous functions that are async or return a task-like type (e.g. `Action a = async () => await Task.Delay(1);`, `Func<Task> f = () => Task.CompletedTask;`).
-- Delegate or event-handler assignment from task-returning method groups (e.g. `eventHandler += TaskReturningMethod;`, `handler = TaskReturningMethod;`).
-- Method group references to task-returning methods or watched API types (e.g. `var m = TaskReturningMethod;`).
-- Field/property/event references on watched API types (e.g. `var p = synchronizationContext.Post;`, `var e = timer.Elapsed;`).
-- Object creation of watched API types (e.g. `new System.Threading.Timer(_ => { });`).
-- Method invocations on watched API types (e.g. `Task.Run(() => { });`, `ThreadPool.QueueUserWorkItem(_ => { });`, `Parallel.For(0, 10, _ => { });`).
+- `await`-less calling of a method that returns `Task`, `Task<T>`, `ValueTask` or `ValueTask<T>`.
+    - e.g. `AsyncMethod();`, `foo.BarAsync();`
+- Creating or assigning anonymous functions that are async or return a Task/ValueTask type.
+    - e.g. `Action a = async () => await Task.Delay(1);`, `Func<Task> f = () => Task.CompletedTask;`
+- Delegate or event-handler assignment from task-returning method groups.
+    - e.g. `eventHandler += TaskReturningMethod;`, `handler = TaskReturningMethod;`
+- Method group references to task-returning methods or watched API types.
+    - e.g. `var m = TaskReturningMethod;`
+- Field/property/event references on watched API types.
+    - e.g. `var p = synchronizationContext.Post;`, `var e = timer.Elapsed;`
+- Object creation of watched API types.
+    - e.g. `new System.Threading.Timer(_ => { });`
+- Method invocations on watched API types.
+    - e.g. `Task.Run(() => { });`, `ThreadPool.QueueUserWorkItem(_ => { });`, `Parallel.For(0, 10, _ => { });`
 - Watched threading/task APIs:
   - `System.Threading.Tasks.Task`
   - `System.Threading.Thread`

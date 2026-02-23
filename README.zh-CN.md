@@ -17,7 +17,7 @@
   - [SIUA021](#siua021-检测到异步调用): 检测到异步调用
 - [静态状态分析](#静态状态分析)
   - [SIUA011](#siua011-静态状态在播放模式之间存留): 静态状态在播放模式之间存留
-  - [SIUA012](#siua012-runtimeinitializeonloadmethod-中缺少状态重置): RuntimeInitializeOnLoadMethod 中缺少状态重置
+  - [SIUA012](#siua012-runtimeinitializeonloadmethod-中缺少状态重置): `RuntimeInitializeOnLoadMethod` 中缺少状态重置
   - [SIUA013](#siua013-带有主体的静态属性可能返回无效的静态状态): 带有主体的静态属性可能返回无效的静态状态
 
 

@@ -17,7 +17,7 @@ Unity 開発時のコードを安全かつ正しく保つための Roslyn アナ
   - [SIUA021](#siua021-非同期呼び出しを検出): 非同期呼び出しを検出
 - [静的状態の解析](#静的状態の解析)
   - [SIUA011](#siua011-静的状態がプレイモードを跨いで残っている): 静的状態がプレイモードを跨いで残っている
-  - [SIUA012](#siua012-runtimeinitializeonloadmethod-での状態リセット漏れ): RuntimeInitializeOnLoadMethod での状態リセット漏れ
+  - [SIUA012](#siua012-runtimeinitializeonloadmethod-での状態リセット漏れ): `RuntimeInitializeOnLoadMethod` での状態リセット漏れ
   - [SIUA013](#siua013-ボディを持つ静的プロパティが不正な状態を返す可能性がある): ボディを持つ静的プロパティが不正な状態を返す可能性がある
 
 
