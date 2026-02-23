@@ -212,13 +212,20 @@ await DoFurtherAsync(); // OK
 **重大度: Error**
 
 このルールは、次のコードに対してエラーを報告します:
-- `Task`、`Task<T>`、`ValueTask`、`ValueTask<T>` を返すメソッド呼び出し（直接 `await` している場合を除く）(e.g. `AsyncMethod();`)。
-- `async` である、または task-like を返す匿名関数の作成・代入 (e.g. `Action a = async () => await Task.Delay(1);`, `Func<Task> f = () => Task.CompletedTask;`)。
-- task-like を返すメソッドグループのデリゲート/イベントハンドラー代入 (e.g. `eventHandler += TaskReturningMethod;`, `handler = TaskReturningMethod;`)。
-- task-like 戻り値メソッド、または監視対象 API 型へのメソッドグループ参照 (e.g. `var m = TaskReturningMethod;`)。
-- 監視対象 API 型のフィールド/プロパティ/イベント参照 (e.g. `var p = synchronizationContext.Post;`, `var e = timer.Elapsed;`)。
-- 監視対象 API 型のオブジェクト生成 (e.g. `new System.Threading.Timer(_ => { });`)。
-- 監視対象 API 型へのメソッド呼び出し (e.g. `Task.Run(() => { });`, `ThreadPool.QueueUserWorkItem(_ => { });`, `Parallel.For(0, 10, _ => { });`)。
+- `Task`、`Task<T>`、`ValueTask`、`ValueTask<T>` を返すメソッドの、`await` しない呼び出し。
+    - e.g. `AsyncMethod();`, `foo.BarAsync();`
+- `async` である、または `Task`/`ValueTask` 型を返す匿名関数の作成・代入。
+    - e.g. `Action a = async () => await Task.Delay(1);`, `Func<Task> f = () => Task.CompletedTask;`
+- `Task`/`ValueTask` を返すメソッドグループのデリゲート/イベントハンドラー代入。
+    - e.g. `eventHandler += TaskReturningMethod;`, `handler = TaskReturningMethod;`
+- `Task`/`ValueTask` 戻り値メソッド、または監視対象 API 型へのメソッドグループ参照。
+    - e.g. `var m = TaskReturningMethod;`
+- 監視対象 API 型のフィールド/プロパティ/イベント参照。
+    - e.g. `var p = synchronizationContext.Post;`, `var e = timer.Elapsed;`
+- 監視対象 API 型のオブジェクト生成。
+    - e.g. `new System.Threading.Timer(_ => { });`
+- 監視対象 API 型へのメソッド呼び出し。
+    - e.g. `Task.Run(() => { });`, `ThreadPool.QueueUserWorkItem(_ => { });`, `Parallel.For(0, 10, _ => { });`
 - 監視対象のスレッド/タスク API:
   - `System.Threading.Tasks.Task`
   - `System.Threading.Thread`
@@ -237,7 +244,7 @@ await DoFurtherAsync(); // OK
 
 ```ini
 [*.cs]
-unity_analyzers_promise_type_name = MyCustomPromise # Default: Promise
+unity_analyzers_promise_type_name = MyCustomPromise  # Default: Promise
 ```
 
 キー名は `unity_analyzers_promise_type_name`（`analyzers` は複数形）を正確に使用してください。

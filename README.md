@@ -216,9 +216,9 @@ This rule reports an error for:
     - e.g. `AsyncMethod();`, `foo.BarAsync();`
 - Creating or assigning anonymous functions that are async or return a Task/ValueTask type.
     - e.g. `Action a = async () => await Task.Delay(1);`, `Func<Task> f = () => Task.CompletedTask;`
-- Delegate or event-handler assignment from task-returning method groups.
+- Delegate or event-handler assignment from `Task`/`ValueTask`-returning method groups.
     - e.g. `eventHandler += TaskReturningMethod;`, `handler = TaskReturningMethod;`
-- Method group references to task-returning methods or watched API types.
+- Method group references to `Task`/`ValueTask`-returning methods or watched API types.
     - e.g. `var m = TaskReturningMethod;`
 - Field/property/event references on watched API types.
     - e.g. `var p = synchronizationContext.Post;`, `var e = timer.Elapsed;`

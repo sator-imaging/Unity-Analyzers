@@ -212,13 +212,20 @@ await DoFurtherAsync(); // OK
 **严重性: Error**
 
 此规则会对以下代码报错：
-- 调用返回 `Task`、`Task<T>`、`ValueTask` 或 `ValueTask<T>` 的方法（直接 `await` 的调用除外）(e.g. `AsyncMethod();`)。
-- 创建或赋值为 `async` / 返回 task-like 的匿名函数 (e.g. `Action a = async () => await Task.Delay(1);`, `Func<Task> f = () => Task.CompletedTask;`)。
-- 将返回 task-like 的方法组赋给委托或事件处理器 (e.g. `eventHandler += TaskReturningMethod;`, `handler = TaskReturningMethod;`)。
-- 对返回 task-like 的方法或受监视 API 类型进行方法组引用 (e.g. `var m = TaskReturningMethod;`)。
-- 访问受监视 API 类型的字段/属性/事件 (e.g. `var p = synchronizationContext.Post;`, `var e = timer.Elapsed;`)。
-- 创建受监视 API 类型的对象 (e.g. `new System.Threading.Timer(_ => { });`)。
-- 调用受监视 API 类型的方法 (e.g. `Task.Run(() => { });`, `ThreadPool.QueueUserWorkItem(_ => { });`, `Parallel.For(0, 10, _ => { });`)。
+- 未使用 `await` 调用返回 `Task`、`Task<T>`、`ValueTask` 或 `ValueTask<T>` 的方法。
+    - e.g. `AsyncMethod();`, `foo.BarAsync();`
+- 创建或赋值为 `async`，或返回 `Task`/`ValueTask` 类型的匿名函数。
+    - e.g. `Action a = async () => await Task.Delay(1);`, `Func<Task> f = () => Task.CompletedTask;`
+- 将返回 `Task`/`ValueTask` 的方法组赋给委托或事件处理器。
+    - e.g. `eventHandler += TaskReturningMethod;`, `handler = TaskReturningMethod;`
+- 对返回 `Task`/`ValueTask` 的方法或受监视 API 类型进行方法组引用。
+    - e.g. `var m = TaskReturningMethod;`
+- 访问受监视 API 类型的字段/属性/事件。
+    - e.g. `var p = synchronizationContext.Post;`, `var e = timer.Elapsed;`
+- 创建受监视 API 类型的对象。
+    - e.g. `new System.Threading.Timer(_ => { });`
+- 调用受监视 API 类型的方法。
+    - e.g. `Task.Run(() => { });`, `ThreadPool.QueueUserWorkItem(_ => { });`, `Parallel.For(0, 10, _ => { });`
 - 受监视的线程/任务 API：
   - `System.Threading.Tasks.Task`
   - `System.Threading.Thread`
@@ -237,7 +244,7 @@ await DoFurtherAsync(); // OK
 
 ```ini
 [*.cs]
-unity_analyzers_promise_type_name = MyCustomPromise # Default: Promise
+unity_analyzers_promise_type_name = MyCustomPromise  # Default: Promise
 ```
 
 请使用精确键名 `unity_analyzers_promise_type_name`（`analyzers` 为复数）。
