@@ -251,6 +251,15 @@ Use the exact key `unity_analyzers_promise_type_name` (plural `analyzers`).
 
 The value is loaded once during analyzer startup and then cached for the analyzer lifetime (changes require restart/reload to apply).
 
+## Suppressing by Category
+
+You can suppress all diagnostics in the `AsyncPromise` category through `.editorconfig`:
+
+```ini
+[*.cs]
+dotnet_analyzer_diagnostic.category-AsyncPromise.severity = silent
+```
+
 ## Limitation: `async void`
 
 `async void` has no awaitable handle (`Task`/`ValueTask`) and no completion/error propagation contract for callers, so call sites cannot reliably track or compose its execution.  
