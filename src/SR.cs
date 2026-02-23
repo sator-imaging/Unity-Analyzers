@@ -10,6 +10,7 @@ namespace UnityAnalyzers
     internal static class SR
     {
         const string Category = nameof(UnityAnalyzers);
+        const string AsyncPromiseCategory = "AsyncPromise";
         const string IdPrefix = "SIUA";
 
         public static readonly DiagnosticDescriptor UnreliableMemberAccessInAyncMethod = new DiagnosticDescriptor(
@@ -61,7 +62,7 @@ namespace UnityAnalyzers
             id: IdPrefix + "021",
             title: "Async invocation detected",
             messageFormat: "Detected untracked async invocation source: {0}.",
-            category: Category,
+            category: AsyncPromiseCategory,  // Separate category to allow suppress analyzer easily
             defaultSeverity: DiagnosticSeverity.Error,
             isEnabledByDefault: true
         );
