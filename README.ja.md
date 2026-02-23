@@ -214,11 +214,11 @@ await DoFurtherAsync(); // OK
 このルールは、次のコードに対してエラーを報告します:
 - `Task`、`Task<T>`、`ValueTask`、`ValueTask<T>` を返すメソッドの、`await` しない呼び出し。
     - e.g. `AsyncMethod();`, `foo.BarAsync();`
-- `async` である、または `Task`/`ValueTask` 型を返す匿名関数の作成・代入。
+- `async` である、または Task/ValueTask 型を返す匿名関数の作成・代入。
     - e.g. `Action a = async () => await Task.Delay(1);`, `Func<Task> f = () => Task.CompletedTask;`
-- `Task`/`ValueTask` を返すメソッドグループのデリゲート/イベントハンドラー代入。
+- Task/ValueTask を返すメソッドグループのデリゲート/イベントハンドラー代入。
     - e.g. `eventHandler += TaskReturningMethod;`, `handler = TaskReturningMethod;`
-- `Task`/`ValueTask` 戻り値メソッド、または監視対象 API 型へのメソッドグループ参照。
+- Task/ValueTask 戻り値メソッド、または監視対象 API 型へのメソッドグループ参照。
     - e.g. `var m = TaskReturningMethod;`
 - 監視対象 API 型のフィールド/プロパティ/イベント参照。
     - e.g. `var p = synchronizationContext.Post;`, `var e = timer.Elapsed;`

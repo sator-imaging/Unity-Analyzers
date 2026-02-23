@@ -214,11 +214,11 @@ await DoFurtherAsync(); // OK
 此规则会对以下代码报错：
 - 未使用 `await` 调用返回 `Task`、`Task<T>`、`ValueTask` 或 `ValueTask<T>` 的方法。
     - e.g. `AsyncMethod();`, `foo.BarAsync();`
-- 创建或赋值为 `async`，或返回 `Task`/`ValueTask` 类型的匿名函数。
+- 创建或赋值为 `async`，或返回 Task/ValueTask 类型的匿名函数。
     - e.g. `Action a = async () => await Task.Delay(1);`, `Func<Task> f = () => Task.CompletedTask;`
-- 将返回 `Task`/`ValueTask` 的方法组赋给委托或事件处理器。
+- 将返回 Task/ValueTask 的方法组赋给委托或事件处理器。
     - e.g. `eventHandler += TaskReturningMethod;`, `handler = TaskReturningMethod;`
-- 对返回 `Task`/`ValueTask` 的方法或受监视 API 类型进行方法组引用。
+- 对返回 Task/ValueTask 的方法或受监视 API 类型进行方法组引用。
     - e.g. `var m = TaskReturningMethod;`
 - 访问受监视 API 类型的字段/属性/事件。
     - e.g. `var p = synchronizationContext.Post;`, `var e = timer.Elapsed;`
