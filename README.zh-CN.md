@@ -251,6 +251,15 @@ unity_analyzers_promise_type_name = MyCustomPromise  # Default: Promise
 
 该值在分析器启动时只加载一次，随后会被缓存（修改后需要重启/重新加载才会生效）。
 
+## 按类别抑制
+
+你可以通过 `.editorconfig` 抑制 `AsyncPromise` 类别中的所有诊断：
+
+```ini
+[*.cs]
+dotnet_analyzer_diagnostic.category-AsyncPromise.severity = silent
+```
+
 ## 限制: `async void`
 
 `async void` 没有可供调用方持有的 awaitable 句柄（`Task`/`ValueTask`），调用方无法可靠地追踪其完成与异常传播。  

@@ -251,6 +251,15 @@ unity_analyzers_promise_type_name = MyCustomPromise  # Default: Promise
 
 この値はアナライザー起動時に一度だけ読み込まれ、その後キャッシュされます（変更を反映するには再起動/再読み込みが必要です）。
 
+## カテゴリによる抑制
+
+`.editorconfig` を使用して、`AsyncPromise` カテゴリのすべての診断を抑制できます。
+
+```ini
+[*.cs]
+dotnet_analyzer_diagnostic.category-AsyncPromise.severity = silent
+```
+
 ## 制限: `async void`
 
 `async void` は呼び出し元が保持できる await 可能ハンドル（`Task`/`ValueTask`）を持たないため、呼び出し地点から完了や例外を信頼して追跡できません。  
