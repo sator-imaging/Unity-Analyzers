@@ -238,6 +238,31 @@ await DoFurtherAsync(); // OK
   - `System.Threading.Tasks.TaskCompletionSource`
   - `System.Threading.Tasks.TaskCompletionSource<T>`
 
+### 如何避免 SIUA021
+
+若要抑制 SIUA021，请使用与名为 `Promise` 的类型（默认名称，可配置）关联的方法或参数包装异步调用。
+
+**使用包装类：**
+```csharp
+public static class Promise
+{
+    public static void Explicit(Action action) => action();
+}
+
+// 在 Promise.Explicit() 内部，SIUA021 会被抑制
+Promise.Explicit(() => Task.Run(() => { }));
+```
+
+**使用参数：**
+```csharp
+// 如果 'Promise' 是一个委托或类
+public void MyMethod(Promise promise)
+{
+    // 在 'Promise' 类型成员的参数内部，SIUA021 会被抑制
+    promise.Execute(async () => await Task.Yield());
+}
+```
+
 ## Promise 类型名自定义
 
 你可以通过 `.editorconfig` 自定义 Promise 例外类型名：

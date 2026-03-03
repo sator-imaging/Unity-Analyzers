@@ -238,6 +238,31 @@ await DoFurtherAsync(); // OK
   - `System.Threading.Tasks.TaskCompletionSource`
   - `System.Threading.Tasks.TaskCompletionSource<T>`
 
+### SIUA021 を回避する方法
+
+SIUA021 を抑制するには、`Promise` という名前の型（デフォルト名、設定で変更可能）に関連付けられたメソッドやパラメーターで非同期呼び出しをラップします。
+
+**ラッパークラスを使用する場合:**
+```csharp
+public static class Promise
+{
+    public static void Explicit(Action action) => action();
+}
+
+// Promise.Explicit() の内部では SIUA021 が抑制されます
+Promise.Explicit(() => Task.Run(() => { }));
+```
+
+**パラメーターを使用する場合:**
+```csharp
+// Promise がデリゲートまたはクラスの場合
+public void MyMethod(Promise promise)
+{
+    // 'Promise' 型のメンバーの引数内では SIUA021 が抑制されます
+    promise.Execute(async () => await Task.Yield());
+}
+```
+
 ## Promise 型名のカスタマイズ
 
 `.editorconfig` で Promise 例外型の名前をカスタマイズできます:

@@ -238,6 +238,31 @@ This rule reports an error for:
   - `System.Threading.Tasks.TaskCompletionSource`
   - `System.Threading.Tasks.TaskCompletionSource<T>`
 
+### How to avoid SIUA021
+
+To suppress SIUA021, wrap the async invocation with a method or parameter associated with a type named `Promise` (default name, configurable).
+
+**Using a wrapper class:**
+```csharp
+public static class Promise
+{
+    public static void Explicit(Action action) => action();
+}
+
+// SIUA021 is suppressed inside Promise.Explicit()
+Promise.Explicit(() => Task.Run(() => { }));
+```
+
+**Using a parameter:**
+```csharp
+// If 'Promise' is a delegate or a class
+public void MyMethod(Promise promise)
+{
+    // SIUA021 is suppressed inside the argument of a 'Promise' type member
+    promise.Execute(async () => await Task.Yield());
+}
+```
+
 ## Promise Type Customization
 
 You can customize the promise exception type name through `.editorconfig`:
