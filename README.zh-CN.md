@@ -255,7 +255,11 @@ Promise.Explicit(() => Task.Run(() => { }));
 
 **实例方法：**
 ```csharp
-// 如果 'Promise' 是一个委托或类
+public class Promise
+{
+    public void Execute(Func<Task> func) => _taskList.Add(func());
+}
+
 public void MyMethod(Promise promise)
 {
     // 在 'Promise' 类型成员的参数内部，SIUA021 会被抑制

@@ -255,7 +255,11 @@ Promise.Explicit(() => Task.Run(() => { }));
 
 **Instance method:**
 ```csharp
-// If 'Promise' is a delegate or a class
+public class Promise
+{
+    public void Execute(Func<Task> func) => _taskList.Add(func());
+}
+
 public void MyMethod(Promise promise)
 {
     // SIUA021 is suppressed inside the argument of a 'Promise' type member

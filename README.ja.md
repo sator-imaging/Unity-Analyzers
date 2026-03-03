@@ -255,7 +255,11 @@ Promise.Explicit(() => Task.Run(() => { }));
 
 **インスタンスメソッド:**
 ```csharp
-// Promise がデリゲートまたはクラスの場合
+public class Promise
+{
+    public void Execute(Func<Task> func) => _taskList.Add(func());
+}
+
 public void MyMethod(Promise promise)
 {
     // 'Promise' 型のメンバーの引数内では SIUA021 が抑制されます
