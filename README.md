@@ -240,9 +240,9 @@ This rule reports an error for:
 
 ### How to avoid SIUA021
 
-To suppress SIUA021, wrap the async invocation with a method or parameter associated with a type named `Promise` (default name, configurable).
+To suppress SIUA021, wrap the async invocation with a static or instance method associated with a type named `Promise` (default name, configurable).
 
-**Using a wrapper class:**
+**Static method:**
 ```csharp
 public static class Promise
 {
@@ -253,7 +253,7 @@ public static class Promise
 Promise.Explicit(() => Task.Run(() => { }));
 ```
 
-**Using a parameter:**
+**Instance method:**
 ```csharp
 // If 'Promise' is a delegate or a class
 public void MyMethod(Promise promise)

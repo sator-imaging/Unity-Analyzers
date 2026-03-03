@@ -171,6 +171,7 @@ using System.Threading.Tasks;
 
 public sealed class Promise
 {
+    public static void StaticExec(Action a) { }
     public Action Exec(Action a) => a;
     public Func<Task<int>> Exec(Func<Task<int>> f) => f;
 }
@@ -188,6 +189,7 @@ public class C
 
     public void M(Promise promise, CustomPromise custom)
     {
+        Promise.StaticExec(() => AsyncMethod());
         E += promise.Exec(async () => await Task.Delay(1));
         E += promise.Exec(() => AsyncMethod());
         E += custom.Exec(() => {|#1:AsyncMethod()|});

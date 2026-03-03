@@ -240,9 +240,9 @@ await DoFurtherAsync(); // OK
 
 ### SIUA021 を回避する方法
 
-SIUA021 を抑制するには、`Promise` という名前の型（デフォルト名、設定で変更可能）に関連付けられたメソッドやパラメーターで非同期呼び出しをラップします。
+SIUA021 を抑制するには、`Promise` という名前の型（デフォルト名、設定で変更可能）に関連付けられた静的メソッドまたはインスタンスメソッドで非同期呼び出しをラップします。
 
-**ラッパークラスを使用する場合:**
+**静的メソッド:**
 ```csharp
 public static class Promise
 {
@@ -253,7 +253,7 @@ public static class Promise
 Promise.Explicit(() => Task.Run(() => { }));
 ```
 
-**パラメーターを使用する場合:**
+**インスタンスメソッド:**
 ```csharp
 // Promise がデリゲートまたはクラスの場合
 public void MyMethod(Promise promise)
