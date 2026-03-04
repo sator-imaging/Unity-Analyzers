@@ -162,12 +162,8 @@ namespace UnityAnalyzers
                     continue;
                 }
 
-                if (argument.Parameter?.Type?.Name == promiseTypeName)
-                {
-                    return true;
-                }
-
                 if (argument.Parent is IInvocationOperation invocation &&
+                    invocation.TargetMethod.ContainingType?.TypeKind != TypeKind.Delegate &&
                     invocation.TargetMethod.ContainingType?.Name == promiseTypeName)
                 {
                     return true;

@@ -246,11 +246,11 @@ To suppress SIUA021, wrap the async invocation with a static or instance method 
 ```csharp
 public static class Promise
 {
-    public static void Explicit(Action action) => action();
+    public static void Execute(Func<Task> func) => _taskList.Add(func());
 }
 
-// SIUA021 is suppressed inside Promise.Explicit()
-Promise.Explicit(() => Task.Run(() => { }));
+// SIUA021 is suppressed inside Promise.Execute()
+Promise.Execute(() => Task.Run(() => { }));
 ```
 
 **Instance method:**
