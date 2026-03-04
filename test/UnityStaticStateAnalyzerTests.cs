@@ -441,5 +441,23 @@ public class TestClass
             test.ExpectedDiagnostics.Add(expected0);
             await test.RunAsync();
         }
+
+        [Fact]
+        public async Task TestStaticMethodShouldNotBeReported()
+        {
+            var testCode = @"
+public class TestClass
+{
+    public static void MyMethod() {}
+}
+";
+            // We expect NO diagnostics here.
+            var test = new CSharpAnalyzerTest<UnityStaticStateAnalyzer, DefaultVerifier>
+            {
+                TestState = { Sources = { testCode, UnityEngineSource } },
+            };
+
+            await test.RunAsync();
+        }
     }
 }
