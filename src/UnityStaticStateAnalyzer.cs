@@ -82,9 +82,9 @@ namespace UnityAnalyzers
                 return !(property.IsReadOnly && IsImmutable(property.Type));
             }
 
-            if (member is IMethodSymbol method)
+            if (member is IMethodSymbol)
             {
-                return method.MethodKind is not (MethodKind.PropertyGet or MethodKind.PropertySet or MethodKind.EventAdd or MethodKind.EventRemove);
+                return false;
             }
 
             return true;
