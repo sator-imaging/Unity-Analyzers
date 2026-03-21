@@ -79,15 +79,16 @@ namespace UnityAnalyzers
 
             if (member is IPropertySymbol property)
             {
+                if (!IsAutoImplemented(property)) return false;
                 return !(property.IsReadOnly && IsImmutable(property.Type));
             }
 
-            if (member is IMethodSymbol)
+            if (member is IEventSymbol @event)
             {
-                return false;
+                return IsAutoImplemented(@event);
             }
 
-            return true;
+            return false;
         }
 
         private static bool IsImmutable(ITypeSymbol type)
@@ -116,6 +117,11 @@ namespace UnityAnalyzers
                 }
             }
             return false;
+        }
+
+        private static bool IsAutoImplemented(IEventSymbol @event)
+        {
+            return @event.AddMethod?.IsImplicitlyDeclared == true && @event.RemoveMethod?.IsImplicitlyDeclared == true;
         }
 
         private static string GetMemberTypeDisplayName(ISymbol member)
