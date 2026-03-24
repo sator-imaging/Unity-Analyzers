@@ -246,11 +246,11 @@ await DoFurtherAsync(); // OK
 ```csharp
 public static class Promise
 {
-    public static void Explicit(Action action) => action();
+    public static void Execute(Func<Task> func) => _taskList.Add(func());
 }
 
-// 在 Promise.Explicit() 内部，SIUA021 会被抑制
-Promise.Explicit(() => Task.Run(() => { }));
+// 在 Promise.Execute() 内部，SIUA021 会被抑制
+Promise.Execute(() => Task.Run(() => { }));
 ```
 
 **实例方法：**

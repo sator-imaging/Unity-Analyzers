@@ -252,5 +252,33 @@ unity_analyzers_promise_type_name = CustomPromise
 
             await test.RunAsync();
         }
+
+        [Fact]
+        public async Task ReportsAsyncInvocationInPromiseDelegate()
+        {
+            var source = @"
+using System;
+using System.Threading.Tasks;
+
+public delegate void Promise(Func<Task> func);
+
+public class C
+{
+    private static Task AsyncMethod() => {|#1:Task.CompletedTask|};
+
+    public void M(Promise promise)
+    {
+        promise({|#0:() => AsyncMethod()|});
+    }
+}
+";
+
+            var test = CreateTest(source);
+
+            test.ExpectedDiagnostics.Add(new DiagnosticResult("SIUA021", DiagnosticSeverity.Error).WithLocation(0));
+            test.ExpectedDiagnostics.Add(new DiagnosticResult("SIUA021", DiagnosticSeverity.Error).WithLocation(1));
+
+            await test.RunAsync();
+        }
     }
 }
