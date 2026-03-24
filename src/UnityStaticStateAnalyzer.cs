@@ -40,6 +40,8 @@ namespace UnityAnalyzers
 
             foreach (var member in members)
             {
+                if (!IsSymbolAnalyzeTargetType(member)) continue;
+
                 if (!hasResetMethod && IsTargetStaticMember(member))
                 {
                     context.ReportDiagnostic(Diagnostic.Create(
@@ -67,6 +69,8 @@ namespace UnityAnalyzers
             return method.GetAttributes().Any(attr => attr.AttributeClass?.Name is "RuntimeInitializeOnLoadMethodAttribute" or "RuntimeInitializeOnLoadMethod");
         }
 
+        private static bool IsSymbolAnalyzeTargetType(ISymbol member) => member is IFieldSymbol or IPropertySymbol or IEventSymbol;
+
         private static bool IsTargetStaticMember(ISymbol member)
         {
             if (!member.IsStatic || member.IsImplicitlyDeclared) return false;
@@ -80,11 +84,6 @@ namespace UnityAnalyzers
             if (member is IPropertySymbol property)
             {
                 return !(property.IsReadOnly && IsImmutable(property.Type));
-            }
-
-            if (member is IMethodSymbol)
-            {
-                return false;
             }
 
             return true;
@@ -141,7 +140,7 @@ namespace UnityAnalyzers
 
             foreach (var member in members)
             {
-                if (member is IMethodSymbol) continue;
+                if (!IsSymbolAnalyzeTargetType(member)) continue;
 
                 if (IsTargetStaticMember(member) && !walker.AssignedSymbols.Contains(member))
                 {
