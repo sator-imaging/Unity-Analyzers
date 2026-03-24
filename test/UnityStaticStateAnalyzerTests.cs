@@ -181,6 +181,9 @@ public class TestClass
             var expected0 = new DiagnosticResult("SIUA011", DiagnosticSeverity.Error)
                 .WithLocation(0)
                 .WithArguments("property", "MutableProperty");
+            var expected1 = new DiagnosticResult("SIUA011", DiagnosticSeverity.Error)
+                .WithLocation(1)
+                .WithArguments("property", "ReadonlyDelegateProperty");
             var expected1_SIUA013 = new DiagnosticResult("SIUA013", DiagnosticSeverity.Warning)
                 .WithLocation(1)
                 .WithArguments("ReadonlyDelegateProperty");
@@ -191,6 +194,7 @@ public class TestClass
             };
 
             test.ExpectedDiagnostics.Add(expected0);
+            test.ExpectedDiagnostics.Add(expected1);
             test.ExpectedDiagnostics.Add(expected1_SIUA013);
             test.ExpectedDiagnostics.Add(new DiagnosticResult("SIUA013", DiagnosticSeverity.Warning).WithLocation(2).WithArguments("ReadonlyEnumProperty"));
             test.ExpectedDiagnostics.Add(new DiagnosticResult("SIUA013", DiagnosticSeverity.Warning).WithLocation(3).WithArguments("ReadonlyIntProperty"));
