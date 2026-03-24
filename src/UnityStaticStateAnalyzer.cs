@@ -40,6 +40,8 @@ namespace UnityAnalyzers
 
             foreach (var member in members)
             {
+                if (member is not (IFieldSymbol or IPropertySymbol or IEventSymbol)) continue;
+
                 if (!hasResetMethod && IsTargetStaticMember(member))
                 {
                     context.ReportDiagnostic(Diagnostic.Create(
@@ -88,7 +90,7 @@ namespace UnityAnalyzers
                 return IsAutoImplemented(@event);
             }
 
-            return false;
+            return true;
         }
 
         private static bool IsImmutable(ITypeSymbol type)
@@ -147,7 +149,7 @@ namespace UnityAnalyzers
 
             foreach (var member in members)
             {
-                if (member is IMethodSymbol) continue;
+                if (member is not (IFieldSymbol or IPropertySymbol or IEventSymbol)) continue;
 
                 if (IsTargetStaticMember(member) && !walker.AssignedSymbols.Contains(member))
                 {
