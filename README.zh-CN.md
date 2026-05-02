@@ -15,6 +15,8 @@
   - [SIUA002](#siua002-安全块内的-await): 安全块内的 await
 - [异步调用分析](#异步调用分析)
   - [SIUA021](#siua021-检测到异步调用): 检测到异步调用
+- [弃用 API 分析](#弃用-api-分析)
+  - [SIUA031](#siua031-基于字符串绑定的-api): 基于字符串绑定的 API
 - [静态状态分析](#静态状态分析)
   - [SIUA011](#siua011-静态状态在播放模式之间存留): 静态状态在播放模式之间存留
   - [SIUA012](#siua012-runtimeinitializeonloadmethod-中缺少状态重置): `RuntimeInitializeOnLoadMethod` 中缺少状态重置
@@ -293,6 +295,40 @@ dotnet_analyzer_diagnostic.category-AsyncPromise.severity = silent
 
 `async void` 没有可供调用方持有的 awaitable 句柄（`Task`/`ValueTask`），调用方无法可靠地追踪其完成与异常传播。  
 因此，在调用追踪模式下，`async void` 流程在技术上无法被完整追踪。
+
+# 弃用 API 分析
+
+`UnityStringBindingAnalyzer` 检测使用旧的、基于字符串绑定的 API。与强类型或基于方法的替代方案相比，这些 API 安全性较低且更难重构。
+
+## `SIUA031`: 基于字符串绑定的 API
+
+**严重性: Error**
+
+不鼓励使用基于字符串绑定的 API，如 `StartCoroutine("MethodName")` 或 `Invoke("MethodName", 1f)`。这些 API 依赖于魔术字符串，使得代码重构变得困难，并且如果方法名更改或拼写错误，容易导致运行时错误。
+
+**规则:**
+在有更好的替代方案时，避免使用以下方法的基于字符串的重载：
+- `StartCoroutine(string)`
+- `StopCoroutine(string)`
+- `Invoke(string, ...)`
+- `InvokeRepeating(string, ...)`
+- `CancelInvoke(string)`
+- `SendMessage(string, ...)`
+- `SendMessageUpwards(string, ...)`
+- `BroadcastMessage(string, ...)`
+
+**安全模式:**
+```csharp
+// 使用基于方法的重载或直接调用
+StartCoroutine(MyRoutine());
+```
+
+**不安全模式:**
+```csharp
+StartCoroutine("MyRoutine"); // Error: SIUA031
+Invoke("MyMethod", 1f);      // Error: SIUA031
+Invoke(nameof(MyMethod), 1f); // Error: SIUA031 (仍是基于字符串)
+```
 
 # 静态状态分析
 
