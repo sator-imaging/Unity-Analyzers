@@ -13,14 +13,14 @@ Roslyn analyzers to ensure safe and correct code when developing with Unity.
 - [Async Method Analysis](#async-method-analysis)
   - [SIUA001](#siua001-unreliable-unity-object-access): Unreliable Unity object access
   - [SIUA002](#siua002-await-in-safe-block): Await in safe block
-- [Async Invocation Analysis](#async-invocation-analysis)
-  - [SIUA021](#siua021-async-invocation-detected): Async invocation detected
-- [Deprecated API Analysis](#deprecated-api-analysis)
-  - [SIUA031](#siua031-string-based-binding-api): String-based Binding API
 - [Static State Analysis](#static-state-analysis)
   - [SIUA011](#siua011-static-state-survives-across-play-modes): Static state survives across play modes
   - [SIUA012](#siua012-missing-state-reset-in-runtimeinitializeonloadmethod): Missing state reset in `RuntimeInitializeOnLoadMethod`
   - [SIUA013](#siua013-static-property-with-body-may-return-invalid-static-state): Static property with body may return invalid static state
+- [Async Invocation Analysis](#async-invocation-analysis)
+  - [SIUA021](#siua021-async-invocation-detected): Async invocation detected
+- [Deprecated API Analysis](#deprecated-api-analysis)
+  - [SIUA031](#siua031-string-based-binding-api): String-based Binding API
 
 
 
