@@ -23,6 +23,7 @@ namespace UnityEngine
         public void InvokeRepeating(string methodName, float time, float repeatRate) { }
         public void CancelInvoke(string methodName) { }
         public void CancelInvoke() { }
+        public bool IsInvoking(string methodName) { return false; }
         public void SendMessage(string methodName) { }
         public void SendMessageUpwards(string methodName) { }
         public void BroadcastMessage(string methodName) { }
@@ -45,9 +46,10 @@ public class TestBehaviour : MonoBehaviour
         {|#2:Invoke(""MyMethod"", 1f)|};
         {|#3:InvokeRepeating(""MyMethod"", 1f, 1f)|};
         {|#4:CancelInvoke(""MyMethod"")|};
-        {|#5:SendMessage(""MyMethod"")|};
-        {|#6:SendMessageUpwards(""MyMethod"")|};
-        {|#7:BroadcastMessage(""MyMethod"")|};
+        {|#5:IsInvoking(""MyMethod"")|};
+        {|#6:SendMessage(""MyMethod"")|};
+        {|#7:SendMessageUpwards(""MyMethod"")|};
+        {|#8:BroadcastMessage(""MyMethod"")|};
     }
 
     System.Collections.IEnumerator MyRoutine() { yield return null; }
@@ -68,9 +70,10 @@ public class TestBehaviour : MonoBehaviour
             test.ExpectedDiagnostics.Add(new DiagnosticResult("SIUA031", DiagnosticSeverity.Error).WithLocation(2).WithArguments("Invoke"));
             test.ExpectedDiagnostics.Add(new DiagnosticResult("SIUA031", DiagnosticSeverity.Error).WithLocation(3).WithArguments("InvokeRepeating"));
             test.ExpectedDiagnostics.Add(new DiagnosticResult("SIUA031", DiagnosticSeverity.Error).WithLocation(4).WithArguments("CancelInvoke"));
-            test.ExpectedDiagnostics.Add(new DiagnosticResult("SIUA031", DiagnosticSeverity.Error).WithLocation(5).WithArguments("SendMessage"));
-            test.ExpectedDiagnostics.Add(new DiagnosticResult("SIUA031", DiagnosticSeverity.Error).WithLocation(6).WithArguments("SendMessageUpwards"));
-            test.ExpectedDiagnostics.Add(new DiagnosticResult("SIUA031", DiagnosticSeverity.Error).WithLocation(7).WithArguments("BroadcastMessage"));
+            test.ExpectedDiagnostics.Add(new DiagnosticResult("SIUA031", DiagnosticSeverity.Error).WithLocation(5).WithArguments("IsInvoking"));
+            test.ExpectedDiagnostics.Add(new DiagnosticResult("SIUA031", DiagnosticSeverity.Error).WithLocation(6).WithArguments("SendMessage"));
+            test.ExpectedDiagnostics.Add(new DiagnosticResult("SIUA031", DiagnosticSeverity.Error).WithLocation(7).WithArguments("SendMessageUpwards"));
+            test.ExpectedDiagnostics.Add(new DiagnosticResult("SIUA031", DiagnosticSeverity.Error).WithLocation(8).WithArguments("BroadcastMessage"));
 
             await test.RunAsync();
         }

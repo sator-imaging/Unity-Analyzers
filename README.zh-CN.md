@@ -21,6 +21,7 @@
   - [SIUA021](#siua021-检测到异步调用): 检测到异步调用
 - [弃用 API 分析](#弃用-api-分析)
   - [SIUA031](#siua031-基于字符串绑定的-api): 基于字符串绑定的 API
+  - [SIUA032](#siua032-基于字符串的属性-id): 基于字符串的属性 ID
 
 
 
@@ -313,6 +314,7 @@ dotnet_analyzer_diagnostic.category-AsyncPromise.severity = silent
 - `Invoke(string, ...)`
 - `InvokeRepeating(string, ...)`
 - `CancelInvoke(string)`
+- `IsInvoking(string)`
 - `SendMessage(string, ...)`
 - `SendMessageUpwards(string, ...)`
 - `BroadcastMessage(string, ...)`
@@ -328,6 +330,32 @@ StartCoroutine(MyRoutine());
 StartCoroutine("MyRoutine"); // Error: SIUA031
 Invoke("MyMethod", 1f);      // Error: SIUA031
 Invoke(nameof(MyMethod), 1f); // Error: SIUA031 (仍是基于字符串)
+```
+
+## `SIUA032`: 基于字符串的属性 ID
+
+**严重性: Error**
+
+不建议在 `Animator.SetTrigger` 或 `Material.SetColor` 等方法中使用基于字符串的属性 ID。这些方法通常在 `Update()` 中调用，使用字符串会导致 Unity 内部每次都要进行哈希计算，从而导致性能下降。
+
+**规则:**
+避免使用以下方法的基于字符串的重载。请使用 `Animator.StringToHash(string)` 或 `Shader.PropertyToID(string)` 一次并存储生成的整数 ID。
+- `Animator.SetTrigger`, `SetInteger`, `SetFloat`, `SetBool`
+- `Material.SetVectorArray`, `SetVector`, `SetTextureScale`, `SetTextureOffset`, `SetTexture`, `SetPropertyLock`, `SetMatrixArray`, `SetMatrix`, `SetInteger`, `SetInt`, `SetFloatArray`, `SetFloat`, `SetConstantBuffer`, `SetColorArray`, `SetColor`, `SetBuffer`
+
+**推荐模式:**
+```csharp
+private static readonly int JumpId = Animator.StringToHash("Jump");
+
+void Jump()
+{
+    animator.SetTrigger(JumpId);
+}
+```
+
+**不推荐模式:**
+```csharp
+animator.SetTrigger("Jump"); // Error: SIUA032
 ```
 
 # 静态状态分析
@@ -401,7 +429,7 @@ public class MyService
 
 **严重性: Warning**
 
-带有 getter 主体（非自动实现）的静态属性在禁用域重新加载时可能会返回无效或过时的静态状态。
+带有 getter 主体（非自动实现）呈现的静态属性在禁用域重新加载时可能会返回无效或过时的静态状态。
 
 **规则:**
 考虑改用自动实现的属性（例如 `static int Property { get; } = 0;`），或确保返回的值得到了正确管理。

@@ -21,6 +21,7 @@ Unity 開発時のコードを安全かつ正しく保つための Roslyn アナ
   - [SIUA021](#siua021-非同期呼び出しを検出): 非同期呼び出しを検出
 - [非推奨 API の解析](#非推奨-api-の解析)
   - [SIUA031](#siua031-文字列ベースのバインディング-api): 文字列ベースのバインディング API
+  - [SIUA032](#siua032-文字列ベースのプロパティ-id): 文字列ベースのプロパティ ID
 
 
 
@@ -313,6 +314,7 @@ dotnet_analyzer_diagnostic.category-AsyncPromise.severity = silent
 - `Invoke(string, ...)`
 - `InvokeRepeating(string, ...)`
 - `CancelInvoke(string)`
+- `IsInvoking(string)`
 - `SendMessage(string, ...)`
 - `SendMessageUpwards(string, ...)`
 - `BroadcastMessage(string, ...)`
@@ -328,6 +330,32 @@ StartCoroutine(MyRoutine());
 StartCoroutine("MyRoutine"); // Error: SIUA031
 Invoke("MyMethod", 1f);      // Error: SIUA031
 Invoke(nameof(MyMethod), 1f); // Error: SIUA031 (依然として文字列ベース)
+```
+
+## `SIUA032`: 文字列ベースのプロパティ ID
+
+**重大度: Error**
+
+`Animator.SetTrigger` や `Material.SetColor` などのメソッドで文字列ベースのプロパティ ID を使用することは推奨されません。これらのメソッドは多くの場合 `Update()` 内で呼び出され、文字列を使用すると Unity 内部で毎回ハッシュ化が行われるため、パフォーマンスの低下を招きます。
+
+**ルール:**
+以下のメソッドの文字列ベースのオーバーロードの使用を避けてください。`Animator.StringToHash(string)` または `Shader.PropertyToID(string)` を一度だけ使用して、結果の整数 ID を保存して使い回してください。
+- `Animator.SetTrigger`, `SetInteger`, `SetFloat`, `SetBool`
+- `Material.SetVectorArray`, `SetVector`, `SetTextureScale`, `SetTextureOffset`, `SetTexture`, `SetPropertyLock`, `SetMatrixArray`, `SetMatrix`, `SetInteger`, `SetInt`, `SetFloatArray`, `SetFloat`, `SetConstantBuffer`, `SetColorArray`, `SetColor`, `SetBuffer`
+
+**正しいパターン:**
+```csharp
+private static readonly int JumpId = Animator.StringToHash("Jump");
+
+void Jump()
+{
+    animator.SetTrigger(JumpId);
+}
+```
+
+**非推奨なパターン:**
+```csharp
+animator.SetTrigger("Jump"); // Error: SIUA032
 ```
 
 # 静的状態の解析
