@@ -11,22 +11,15 @@ using System.Collections.Immutable;
 namespace UnityAnalyzers
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public sealed class UnityStringBindingAnalyzer : DiagnosticAnalyzer
+    public sealed class UnityPropertyIdAnalyzer : DiagnosticAnalyzer
     {
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-            ImmutableArray.Create(SR.StringBasedBindingApi);
+            ImmutableArray.Create(SR.StringBasedPropertyId);
 
-        private static readonly HashSet<string> TargetMethods = new HashSet<string>
+        private static readonly Dictionary<string, HashSet<string>> TargetMethods = new Dictionary<string, HashSet<string>>
         {
-            "StartCoroutine",
-            "StopCoroutine",
-            "Invoke",
-            "InvokeRepeating",
-            "CancelInvoke",
-            "IsInvoking",
-            "SendMessage",
-            "SendMessageUpwards",
-            "BroadcastMessage"
+            { "Animator", new HashSet<string> { "SetTrigger", "SetBool" } },
+            { "Material", new HashSet<string> { "SetColor", "SetFloat" } },
         };
 
         public override void Initialize(AnalysisContext context)
@@ -43,12 +36,15 @@ namespace UnityAnalyzers
             var method = operation.TargetMethod;
 
             if (method == null) return;
-            if (!TargetMethods.Contains(method.Name)) return;
 
-            var instance = operation.Instance;
-            if (instance == null) return;
+            var type = method.ContainingType;
+            if (type == null) return;
 
-            if (!IsInheritedFromMonoBehaviour(instance.Type)) return;
+            if (!IsUnityType(type, out var typeName)) return;
+            if (typeName == null) return;
+
+            if (!TargetMethods.TryGetValue(typeName, out var methods)) return;
+            if (!methods.Contains(method.Name)) return;
 
             if (operation.Arguments.Length > 0)
             {
@@ -64,24 +60,27 @@ namespace UnityAnalyzers
                 if (value.Type?.SpecialType == SpecialType.System_String)
                 {
                     context.ReportDiagnostic(Diagnostic.Create(
-                        SR.StringBasedBindingApi,
+                        SR.StringBasedPropertyId,
                         operation.Syntax.GetLocation(),
                         method.Name));
                 }
             }
         }
 
-        private static bool IsInheritedFromMonoBehaviour(ITypeSymbol? typeSymbol)
+        private static bool IsUnityType(ITypeSymbol? typeSymbol, out string? typeName)
         {
+            typeName = null;
             var currentType = typeSymbol as INamedTypeSymbol;
             while (currentType != null)
             {
-                const string UnityEngine = nameof(UnityEngine);
-                if (currentType.Name == "MonoBehaviour" &&
-                    currentType.ContainingNamespace?.Name == UnityEngine &&
+                if (currentType.ContainingNamespace?.Name == "UnityEngine" &&
                     currentType.ContainingNamespace.ContainingNamespace?.IsGlobalNamespace == true)
                 {
-                    return true;
+                    if (currentType.Name == "Animator" || currentType.Name == "Material")
+                    {
+                        typeName = currentType.Name;
+                        return true;
+                    }
                 }
                 currentType = currentType.BaseType;
             }

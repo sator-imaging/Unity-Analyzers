@@ -76,5 +76,14 @@ namespace UnityAnalyzers
             defaultSeverity: DiagnosticSeverity.Error,
             isEnabledByDefault: true
         );
+
+        public static readonly DiagnosticDescriptor StringBasedPropertyId = new DiagnosticDescriptor(
+            id: IdPrefix + "032",
+            title: "String-based property ID",
+            messageFormat: "Using string-based property ID '{0}' is discouraged. Use int-based ID instead for better performance.",
+            category: DeprecatedCategory,
+            defaultSeverity: DiagnosticSeverity.Error,
+            isEnabledByDefault: true
+        );
     }
 }

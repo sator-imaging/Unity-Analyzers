@@ -21,6 +21,7 @@ Roslyn analyzers to ensure safe and correct code when developing with Unity.
   - [SIUA021](#siua021-async-invocation-detected): Async invocation detected
 - [Deprecated API Analysis](#deprecated-api-analysis)
   - [SIUA031](#siua031-string-based-binding-api): String-based Binding API
+  - [SIUA032](#siua032-string-based-property-id): String-based property ID
 
 
 
@@ -313,6 +314,7 @@ Avoid using the string-based overloads of the following methods when a better al
 - `Invoke(string, ...)`
 - `InvokeRepeating(string, ...)`
 - `CancelInvoke(string)`
+- `IsInvoking(string)`
 - `SendMessage(string, ...)`
 - `SendMessageUpwards(string, ...)`
 - `BroadcastMessage(string, ...)`
@@ -328,6 +330,34 @@ StartCoroutine(MyRoutine());
 StartCoroutine("MyRoutine"); // Error: SIUA031
 Invoke("MyMethod", 1f);      // Error: SIUA031
 Invoke(nameof(MyMethod), 1f); // Error: SIUA031 (still string-based)
+```
+
+## `SIUA032`: String-based property ID
+
+**Severity: Error**
+
+Using string-based property IDs in methods like `Animator.SetTrigger` or `Material.SetColor` is discouraged. These methods are often called in `Update()` and using strings leads to poor performance because Unity has to hash the string internally every time.
+
+**Rule:**
+Avoid using string-based overloads of the following methods. Use `Animator.StringToHash(string)` or `Shader.PropertyToID(string)` once and store the resulting integer ID.
+- `Animator.SetTrigger(string)`
+- `Animator.SetBool(string, ...)`
+- `Material.SetColor(string, ...)`
+- `Material.SetFloat(string, ...)`
+
+**Proper Pattern:**
+```csharp
+private static readonly int JumpId = Animator.StringToHash("Jump");
+
+void Jump()
+{
+    animator.SetTrigger(JumpId);
+}
+```
+
+**Discouraged Pattern:**
+```csharp
+animator.SetTrigger("Jump"); // Error: SIUA032
 ```
 
 # Static State Analysis
