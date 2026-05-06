@@ -18,8 +18,12 @@ namespace UnityAnalyzers
 
         private static readonly Dictionary<string, HashSet<string>> TargetMethods = new Dictionary<string, HashSet<string>>
         {
-            { "Animator", new HashSet<string> { "SetTrigger", "SetBool" } },
-            { "Material", new HashSet<string> { "SetColor", "SetFloat" } },
+            { "Animator", new HashSet<string> { "SetTrigger", "SetInteger", "SetFloat", "SetBool" } },
+            { "Material", new HashSet<string> {
+                "SetVectorArray", "SetVector", "SetTextureScale", "SetTextureOffset", "SetTexture", "SetPropertyLock",
+                "SetMatrixArray", "SetMatrix", "SetInteger", "SetInt", "SetFloatArray", "SetFloat", "SetConstantBuffer",
+                "SetColorArray", "SetColor", "SetBuffer"
+            } },
         };
 
         public override void Initialize(AnalysisContext context)

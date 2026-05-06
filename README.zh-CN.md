@@ -340,10 +340,8 @@ Invoke(nameof(MyMethod), 1f); // Error: SIUA031 (仍是基于字符串)
 
 **规则:**
 避免使用以下方法的基于字符串的重载。请使用 `Animator.StringToHash(string)` 或 `Shader.PropertyToID(string)` 一次并存储生成的整数 ID。
-- `Animator.SetTrigger(string)`
-- `Animator.SetBool(string, ...)`
-- `Material.SetColor(string, ...)`
-- `Material.SetFloat(string, ...)`
+- `Animator.SetTrigger`, `SetInteger`, `SetFloat`, `SetBool`
+- `Material.SetVectorArray`, `SetVector`, `SetTextureScale`, `SetTextureOffset`, `SetTexture`, `SetPropertyLock`, `SetMatrixArray`, `SetMatrix`, `SetInteger`, `SetInt`, `SetFloatArray`, `SetFloat`, `SetConstantBuffer`, `SetColorArray`, `SetColor`, `SetBuffer`
 
 **推荐模式:**
 ```csharp

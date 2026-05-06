@@ -340,10 +340,8 @@ Using string-based property IDs in methods like `Animator.SetTrigger` or `Materi
 
 **Rule:**
 Avoid using string-based overloads of the following methods. Use `Animator.StringToHash(string)` or `Shader.PropertyToID(string)` once and store the resulting integer ID.
-- `Animator.SetTrigger(string)`
-- `Animator.SetBool(string, ...)`
-- `Material.SetColor(string, ...)`
-- `Material.SetFloat(string, ...)`
+- `Animator.SetTrigger`, `SetInteger`, `SetFloat`, `SetBool`
+- `Material.SetVectorArray`, `SetVector`, `SetTextureScale`, `SetTextureOffset`, `SetTexture`, `SetPropertyLock`, `SetMatrixArray`, `SetMatrix`, `SetInteger`, `SetInt`, `SetFloatArray`, `SetFloat`, `SetConstantBuffer`, `SetColorArray`, `SetColor`, `SetBuffer`
 
 **Proper Pattern:**
 ```csharp

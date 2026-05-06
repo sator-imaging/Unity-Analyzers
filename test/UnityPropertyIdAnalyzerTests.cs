@@ -17,6 +17,10 @@ namespace UnityEngine
     {
         public void SetTrigger(string name) { }
         public void SetTrigger(int id) { }
+        public void SetInteger(string name, int value) { }
+        public void SetInteger(int id, int value) { }
+        public void SetFloat(string name, float value) { }
+        public void SetFloat(int id, float value) { }
         public void SetBool(string name, bool value) { }
         public void SetBool(int id, bool value) { }
     }
@@ -26,7 +30,13 @@ namespace UnityEngine
         public void SetColor(int id, Color value) { }
         public void SetFloat(string name, float value) { }
         public void SetFloat(int id, float value) { }
+        public void SetVector(string name, Vector4 value) { }
+        public void SetVector(int id, Vector4 value) { }
+        public void SetTexture(string name, Texture value) { }
+        public void SetTexture(int id, Texture value) { }
     }
+    public struct Vector4 { }
+    public class Texture : Object { }
     public struct Color { }
 }
 ";
@@ -48,6 +58,10 @@ public class TestBehaviour : MonoBehaviour
         {|#1:animator.SetBool(""IsGrounded"", true)|};
         {|#2:material.SetColor(""_Color"", new Color())|};
         {|#3:material.SetFloat(""_Glossiness"", 0.5f)|};
+        {|#4:animator.SetInteger(""Status"", 1)|};
+        {|#5:animator.SetFloat(""Speed"", 1.0f)|};
+        {|#6:material.SetVector(""_MainTex_ST"", new Vector4())|};
+        {|#7:material.SetTexture(""_MainTex"", new Texture())|};
     }
 }
 
@@ -66,6 +80,10 @@ public class MonoBehaviour : UnityEngine.Component { }
             test.ExpectedDiagnostics.Add(new DiagnosticResult("SIUA032", DiagnosticSeverity.Error).WithLocation(1).WithArguments("SetBool"));
             test.ExpectedDiagnostics.Add(new DiagnosticResult("SIUA032", DiagnosticSeverity.Error).WithLocation(2).WithArguments("SetColor"));
             test.ExpectedDiagnostics.Add(new DiagnosticResult("SIUA032", DiagnosticSeverity.Error).WithLocation(3).WithArguments("SetFloat"));
+            test.ExpectedDiagnostics.Add(new DiagnosticResult("SIUA032", DiagnosticSeverity.Error).WithLocation(4).WithArguments("SetInteger"));
+            test.ExpectedDiagnostics.Add(new DiagnosticResult("SIUA032", DiagnosticSeverity.Error).WithLocation(5).WithArguments("SetFloat"));
+            test.ExpectedDiagnostics.Add(new DiagnosticResult("SIUA032", DiagnosticSeverity.Error).WithLocation(6).WithArguments("SetVector"));
+            test.ExpectedDiagnostics.Add(new DiagnosticResult("SIUA032", DiagnosticSeverity.Error).WithLocation(7).WithArguments("SetTexture"));
 
             await test.RunAsync();
         }
