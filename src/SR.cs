@@ -11,6 +11,7 @@ namespace UnityAnalyzers
     {
         const string Category = nameof(UnityAnalyzers);
         const string AsyncPromiseCategory = "AsyncPromise";
+        const string DeprecatedCategory = "Deprecated API Analysis";
         const string IdPrefix = "SIUA";
 
         public static readonly DiagnosticDescriptor UnreliableMemberAccessInAyncMethod = new DiagnosticDescriptor(
@@ -63,6 +64,15 @@ namespace UnityAnalyzers
             title: "Async invocation detected",
             messageFormat: "Detected untracked async invocation source: {0}.",
             category: AsyncPromiseCategory,  // Separate category to allow suppress analyzer easily
+            defaultSeverity: DiagnosticSeverity.Error,
+            isEnabledByDefault: true
+        );
+
+        public static readonly DiagnosticDescriptor StringBasedBindingApi = new DiagnosticDescriptor(
+            id: IdPrefix + "031",
+            title: "String-based Binding API",
+            messageFormat: "Using string-based binding API '{0}' is discouraged.",
+            category: DeprecatedCategory,
             defaultSeverity: DiagnosticSeverity.Error,
             isEnabledByDefault: true
         );

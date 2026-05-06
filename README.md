@@ -15,6 +15,8 @@ Roslyn analyzers to ensure safe and correct code when developing with Unity.
   - [SIUA002](#siua002-await-in-safe-block): Await in safe block
 - [Async Invocation Analysis](#async-invocation-analysis)
   - [SIUA021](#siua021-async-invocation-detected): Async invocation detected
+- [Deprecated API Analysis](#deprecated-api-analysis)
+  - [SIUA031](#siua031-string-based-binding-api): String-based Binding API
 - [Static State Analysis](#static-state-analysis)
   - [SIUA011](#siua011-static-state-survives-across-play-modes): Static state survives across play modes
   - [SIUA012](#siua012-missing-state-reset-in-runtimeinitializeonloadmethod): Missing state reset in `RuntimeInitializeOnLoadMethod`
@@ -293,6 +295,40 @@ dotnet_analyzer_diagnostic.category-AsyncPromise.severity = silent
 
 `async void` has no awaitable handle (`Task`/`ValueTask`) and no completion/error propagation contract for callers, so call sites cannot reliably track or compose its execution.  
 For that reason, `async void` flows are technically not fully trackable by invocation-tracking patterns.
+
+# Deprecated API Analysis
+
+`UnityStringBindingAnalyzer` detects the usage of old, string-based binding APIs that are less safe and harder to refactor than their strongly-typed or method-based alternatives.
+
+## `SIUA031`: String-based Binding API
+
+**Severity: Error**
+
+Using string-based binding APIs like `StartCoroutine("MethodName")` or `Invoke("MethodName", 1f)` is discouraged. These APIs rely on magic strings, making code refactoring difficult and prone to runtime errors if the method name changes or is misspelled.
+
+**Rule:**
+Avoid using the string-based overloads of the following methods when a better alternative is available:
+- `StartCoroutine(string)`
+- `StopCoroutine(string)`
+- `Invoke(string, ...)`
+- `InvokeRepeating(string, ...)`
+- `CancelInvoke(string)`
+- `SendMessage(string, ...)`
+- `SendMessageUpwards(string, ...)`
+- `BroadcastMessage(string, ...)`
+
+**Safe Pattern:**
+```csharp
+// Use method-based overloads or direct calls
+StartCoroutine(MyRoutine());
+```
+
+**Unsafe Pattern:**
+```csharp
+StartCoroutine("MyRoutine"); // Error: SIUA031
+Invoke("MyMethod", 1f);      // Error: SIUA031
+Invoke(nameof(MyMethod), 1f); // Error: SIUA031 (still string-based)
+```
 
 # Static State Analysis
 

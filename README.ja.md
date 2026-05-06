@@ -15,6 +15,8 @@ Unity 開発時のコードを安全かつ正しく保つための Roslyn アナ
   - [SIUA002](#siua002-安全ブロック内での-await): 安全ブロック内での await
 - [非同期呼び出しの解析](#非同期呼び出しの解析)
   - [SIUA021](#siua021-非同期呼び出しを検出): 非同期呼び出しを検出
+- [非推奨 API の解析](#非推奨-api-の解析)
+  - [SIUA031](#siua031-文字列ベースのバインディング-api): 文字列ベースのバインディング API
 - [静的状態の解析](#静的状態の解析)
   - [SIUA011](#siua011-静的状態がプレイモードを跨いで残っている): 静的状態がプレイモードを跨いで残っている
   - [SIUA012](#siua012-runtimeinitializeonloadmethod-での状態リセット漏れ): `RuntimeInitializeOnLoadMethod` での状態リセット漏れ
@@ -293,6 +295,40 @@ dotnet_analyzer_diagnostic.category-AsyncPromise.severity = silent
 
 `async void` は呼び出し元が保持できる await 可能ハンドル（`Task`/`ValueTask`）を持たないため、呼び出し地点から完了や例外を信頼して追跡できません。  
 そのため、呼び出し追跡パターンでは `async void` フローを完全には追跡できません。
+
+# 非推奨 API の解析
+
+`UnityStringBindingAnalyzer` は、型安全ではなくリファクタリングも困難な、古い文字列ベースのバインディング API の使用を検出します。
+
+## `SIUA031`: 文字列ベースのバインディング API
+
+**重大度: Error**
+
+`StartCoroutine("MethodName")` や `Invoke("MethodName", 1f)` のような文字列ベースのバインディング API の使用は推奨されません。これらの API はマジック文字列に依存しているため、コードのリファクタリングが困難になり、メソッド名が変更されたりタイプミスがあったりした場合に実行時エラーの原因となります。
+
+**ルール:**
+より良い代替手段がある場合は、以下のメソッドの文字列ベースのオーバーロードの使用を避けてください。
+- `StartCoroutine(string)`
+- `StopCoroutine(string)`
+- `Invoke(string, ...)`
+- `InvokeRepeating(string, ...)`
+- `CancelInvoke(string)`
+- `SendMessage(string, ...)`
+- `SendMessageUpwards(string, ...)`
+- `BroadcastMessage(string, ...)`
+
+**安全なパターン:**
+```csharp
+// メソッドベースのオーバーロードまたは直接の呼び出しを使用する
+StartCoroutine(MyRoutine());
+```
+
+**危険なパターン:**
+```csharp
+StartCoroutine("MyRoutine"); // Error: SIUA031
+Invoke("MyMethod", 1f);      // Error: SIUA031
+Invoke(nameof(MyMethod), 1f); // Error: SIUA031 (依然として文字列ベース)
+```
 
 # 静的状態の解析
 
