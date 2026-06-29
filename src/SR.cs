@@ -9,9 +9,9 @@ namespace UnityAnalyzers
 {
     internal static class SR
     {
-        const string Category = nameof(UnityAnalyzers);
-        const string AsyncPromiseCategory = "AsyncPromise";
-        const string DeprecatedCategory = "Deprecated API Analysis";
+        const string Category = "SatorImaging" + nameof(UnityAnalyzers);
+        const string AsyncPromiseCategory = Category + "AsyncPromise";
+        const string DeprecatedCategory = Category + "DeprecatedAPI";
         const string IdPrefix = "SIUA";
 
         public static readonly DiagnosticDescriptor UnreliableMemberAccessInAyncMethod = new DiagnosticDescriptor(
