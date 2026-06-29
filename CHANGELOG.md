@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.6.2](https://github.com/sator-imaging/Unity-Analyzers/releases/tag/v1.6.2) (2026-06-29)
+
+### 📣 Breaking Changes ⚠
+* feat!: reorganize diagnostic category by [@sator-imaging](https://github.com/sator-imaging) in [#28](https://github.com/sator-imaging/Unity-Analyzers/pull/28)
+
+
+**Full Changelog**: https://github.com/sator-imaging/Unity-Analyzers/compare/v1.6.1...v1.6.2
+
+
 ## [1.6.1](https://github.com/sator-imaging/Unity-Analyzers/releases/tag/v1.6.1) (2026-06-16)
 
 ### 📚 Other Changes
